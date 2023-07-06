@@ -80,3 +80,16 @@ Most of the logic is in `Composition.js`:
 - Composition.js — a component with the most logic. The transition through the assembly stages is placed here.
 - Notifications.js — a component for displaying pop-up notifications.
 - Stopwatch.js — a component for displaying stopwatches for each production stages.
+
+## Configuration
+
+To configure your Frontend deployment edit the environment variables, provided in `configs/config.json` file.
+
+Environment variables:
+
+- `socket` — insert the Workbench Daemon address here;
+- `interface_language` — interface language, available en and ru options;
+- `dev_show_reducers` — enabling/disabling developer mode;
+- `pulling_period` — period of receiving data from the backend in milliseconds;
+- `use_devtools` — using devtools;
+- `show_test_schemas` — whether to show test schemes.
