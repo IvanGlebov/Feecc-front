@@ -25,7 +25,7 @@ npm run dev-server
 To prepare the application for deployment, run the command:
 
 ```
-npm run build`
+npm run build
 ```
 
 After that, the `target` folder will be created in the root folder of the project, in which all the files necessary for work will be located. The root HTML file is `index.html`.
@@ -46,15 +46,7 @@ After that, the container will be built and launched.
 
 The project is written using [Redux](https://redux.js.org/) and [immutable.js](https://immutable-js.com/), building is done using Webpack.
 
->When working with the Redux store, it's important to keep immutable.js in mind and not try to do something like this:
-```
-unitID: store.stages.unit.unit_internal_id
-```
-instead of:
-```
-unitID: store.stages.getIn(['unit', 'unit_internal_id']}
-```
-Without knowledge of immutable.js, `stagesReducer` is best left untouched.
+>When working with the Redux store, it's important to keep immutable.js in mind and not try to do something like this: `unitID: store.stages.unit.unit_internal_id`, instead of: `unitID: store.stages.getIn(['unit', 'unit_internal_id']}`. Without knowledge of immutable.js, `stagesReducer` is best left untouched.
 
 ### Configuration files
 
