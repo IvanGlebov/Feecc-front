@@ -1,77 +1,90 @@
-# Веб приложение для системы мниторинга производства на базе платформы Feecc
+# Feecc Workbench Frontend
 
-### Перед началом
-Склонируйте репозиторий в нужную вам директорию.
+A web interface for employee interaction with the Feecc platform.
 
-Перейдите в директорию с проектом и в командной строке выполните `sudo npm install` для установки всех необходимых 
-зависимостей. Это может занять некоторое время, которое зависит от скорости вашего интернета.
+### Before starting
 
-### Тестовый запуск
-Для запуска в режиме разработчика необходимо выполнить команду `npm run dev-server`
+Clone the repository to the directory you need. Go to the project directory and run in the command line:
 
-### Полноценное разворачивание приложения
-Для подготовки приложения к разворачиванию необходимо выполнить команду `npm run build`.
-После этого в корневой папке проекта появится папка `target`. Там будут все необходимые для рабты файлы.
-Корневым файлом html является `index.html`.
+```
+ sudo npm install
+```
 
-### Docker
-Для удобства разворачивания есть Docker контейнер и подготовленный docker-compose. 
+This will install all required dependencies and may take some time depending on your internet speed.
 
-#### Использование docker-compose
-В корневой директории проекта надо выполнить последовательно две команды: `docker-compose build` и `docker-compose up`. 
-После этого контейнер соберётся и будет запущен.
+### Test launching
 
-# О структуре
+To launch in developer mode, run the command:
 
-Проект на писан с использованием Redux и immutableJS. Вся собрка производится при помощи Webpack.
-При работе с Redux store важно помнить про ImmutableJS и не пытаться сделать так `unitID: store.stages.unit.unit_internal_id`.
-А делать так `unitID: store.stages.getIn(['unit', 'unit_internal_id']}`. 
-Если не понимаешь как работает ImmutableJS, то `stagesReducer` лучше не трогать. 
+```
+npm run dev-server
+```
 
-### Конфиги
-Все имеющиеся файлы конфигурации находятся в файле `.env`. 
-Файл этапов производства находится в папке `/configs` и называется `pages.csv`.
+### Full deployment
+
+To prepare the application for deployment, run the command:
+
+```
+npm run build`
+```
+
+After that, the `target` folder will be created in the root folder of the project, in which all the files necessary for work will be located. The root HTML file is `index.html`.
+
+### Deployment with Docker
+
+For ease of deployment, there is a Docker container and prepared Docker Compose.
+In the root directory of the project, you need to execute two commands:
+
+```
+docker-compose build
+docker-compose up
+```
+
+After that, the container will be built and launched.
+
+## About architecture
+
+The project is written using [Redux](https://redux.js.org/) and [immutable.js](https://immutable-js.com/), building is done using Webpack.
+
+>When working with the Redux store, it's important to keep immutable.js in mind and not try to do something like this:
+```
+unitID: store.stages.unit.unit_internal_id
+```
+instead of:
+```
+unitID: store.stages.getIn(['unit', 'unit_internal_id']}
+```
+Without knowledge of immutable.js, `stagesReducer` is best left untouched.
+
+### Configuration files
+
+All available configuration files are located in the `.env` file. The production stages file is located in the `/configs` directory and is called `pages.csv`.
 
 ### Redux
-Все данные redux store хранятся в `src/reducers`. Основной файл компоновки и импорта store - `src/reducers/main.js`.
-В файле `src/reducers.common.js` хранятся типы запросов к store (см. `types` в файле `common.js`), 
-`fetchWrapper` и `axiosWrapper`. Эти две функции выполняют все запросы к бэку и работают корректно. Туда лезть 
-вообще не надо. Функция `reportError` существует для удобства разработки и отлова ошибок с `redux store`.
 
-Все записи в `store` производятся в `src/reducers/stagesReducer.js`.
+All Redux store data is stored in `src/reducers`. The main store build and import file is located at `src/reducers/main.js`. The `src/reducers.common.js` file contains the store request types (see `types` in the `common.js` file), `fetchWrapper` и `axiosWrapper`. These two functions send all requests to the backend. The `reportError` function exists for the convenience of developing and trapping errors with Redux store.
 
-Все запросы к бэку и `store` обрабатываются в `src/reducers/stagesActions.js`
+All writes to `store`  are made in `src/reducers/stagesReducer.js`. All backend and `store` requests are handled in `src/reducers/stagesActions.js`.
 
-### Перевод
+### Translation
 
-Для перевода используется модуль `i18next` и самописный загрузчик для переводов из `.csv`. Переводы 
-хранятся в `/public/translation.csv`. Первую строку этого файла, нельзя изменять без изменений в `i18next.js`! 
+For translation, the `i18next` module and a self-written loader for translations from `.csv` are used. Translations are stored in `/public/translation.csv`.
 
-### Базовые стили
-Цветовая палитра лежит в файле `src/index.scss`.
+> The first line of this file must not be changed without changing `i18next.js`.
 
-## Компоненты
+### Basic styles
 
-Всё заполнение подгружается в `App.js` в зависимости от состояния `store` и `pathname`. `Pathname` 
-будет динамически меняться в процессе работы, но это не даёт возможности свободно перемещаться 
-по этапам, так как восстановление сессии вернёт пользователя на текущий этап производства, если оно идёт.
+The color palette is in the `src/index.scss` file.
 
-Большая часть логики лежит в `Composition.js`. Трогать с осторожность и с полным пониманием как оно работает.
+## About components
 
-#### Login.js
-Компонента с заглушкой и опросом сервера на наличие авторизации пользователя.
+All padding is loaded into `App.js` depending on the state of `store` and `pathname`. Pathname will change dynamically during work, but this does not allow to freely proceed through the stages, since restoring the session will return the user to the current stage of production, if it is in progress.
 
-#### Header.js
-Компонента для хранения части логики работы перемещения по страницам и шапки страницы.
+Most of the logic is in `Composition.js`:
 
-#### Menu.js
-Компонента с минимумом логики и двумя кнопками для начала сборки и завершения сессии.
-
-#### Composition.js
-Компонента с самым большим количеством логики. Переход по этапам сборки проихводится именно тут.
-
-#### Notifications.js
-Компонента для отображения всплывающих уведомлений.
-
-#### Stopwatch.js
-Компонента для отображения секундомеров для каждого этапа производства.
+- Login.js — a component with a placeholder and requesting the server for user authorization.
+- Header.js — a component for storing part of the logic for transition through pages and the logic for the page header.
+- Menu.js — a component with a minimum of logic; two buttons to start the assembly and end the session.
+- Composition.js — a component with the most logic. The transition through the assembly stages is placed here.
+- Notifications.js — a component for displaying pop-up notifications.
+- Stopwatch.js — a component for displaying stopwatches for each production stages.
