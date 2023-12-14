@@ -151,7 +151,7 @@ export const doStartStepRecord = (
 ) => {
   axiosWrapper(
     dispatch,
-    undefined,
+    types.STAGES__RESET_ERROR_NOTIFICATION,
     {
       method: "post",
       url: `${process.env.APPLICATION_SOCKET}/workbench/start-operation`,
@@ -301,3 +301,25 @@ export const doUpdateCompositionTimer = (dispatch, value) => {
     value
   })
 }
+
+export const doAddAdditionalInfo = (dispatch, additionalInfo, plate, successChecker, errorChecker) => {
+  axiosWrapper(
+    dispatch,
+    undefined,
+    {
+      url: `${process.env.APPLICATION_SOCKET}/operator/manual-input`,
+      method: "post",
+      data: {
+        details: JSON.stringify(additionalInfo),
+      },
+      params: {license_plate: plate},
+      headers: {'Content-Type': 'application/json'}
+    }
+  ).then(res => {
+    if(res && res.status === 200) {
+      successChecker()
+    } else {
+      errorChecker();
+    }
+  });
+};

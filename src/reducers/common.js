@@ -4,6 +4,7 @@ import axios from "axios";
 export const types = {
   STAGES__FETCH_COMPOSITION       : 'STAGES__FETCH_COMPOSITION',
   STAGES__REPORT_ERROR            : 'STAGES__REPORT_ERROR',
+  STAGES__RESET_ERROR_NOTIFICATION: 'STAGES__RESET_ERROR_NOTIFICATION',
   STAGES__CREATE_NEW_UNIT         : 'STAGES__CREATE_NEW_UNIT',
   STAGES__REMOVE_NOTIFICATION     : 'STAGES__REMOVE_NOTIFICATION',
   STAGES__ADD_NOTIFICATION        : 'STAGES__ADD_NOTIFICATION',
@@ -23,7 +24,6 @@ export const types = {
 
 export const reportError = (error) => {
   let msg = error && error.message || error
-
   try {
     return { type: types.STAGES__REPORT_ERROR, error: JSON.parse.msg }
   } catch (e) {
@@ -31,36 +31,18 @@ export const reportError = (error) => {
   }
 }
 
-export const reportAxiosError = (error) => {
-  return { type: types.STAGES__REPORT_ERROR, error: error }
+export const reportAxiosError = (error, errorChecker) => {
+  if(error.response.status === 504) {
+    return { type: types.STAGES__REPORT_ERROR, error: error.response }
+  } else {
+    return { type: types.STAGES__REPORT_ERROR, error: error }
+  }
 }
 
 
-export const fetchWrapper = (dispatch, url, event, opts, successChecker) => {
-  // console.log(`fetching ${url}`)
-  return fetch(`${process.env.APPLICATION_SOCKET}${url}`, opts)
-    .then(res => {
-      if (res.status >= 400)
-        throw new Error(JSON.stringify(res.json()))
-      else
-        return res.json()
-    })
-    .then(res => {
-      if (!successChecker || successChecker(res)) {
-        if (event !== undefined) {
-          dispatch((typeof event === 'string') ? { type: event, ...res } : event(res))
-        } else {
-          dispatch(reportError(res))
-        }
-      } else {
-        dispatch(reportError(res))
-      }
-    })
-    .catch(error => dispatch(reportError((error))))
-}
 
-export const axiosWrapper = (dispatch, event, opts, successChecker) => {
-  return axios(opts)
+export const axiosWrapper = async (dispatch, event, opts, successChecker, errorChecker) => {
+  return await axios(opts)
     // .then(res => {
     //   if (res.status >= 400)
     //     throw new Error(JSON.stringify(res))
@@ -76,21 +58,16 @@ export const axiosWrapper = (dispatch, event, opts, successChecker) => {
       } else {
         dispatch(reportAxiosError(res))
       }
+
+      if (process.env.DEV_SHOW_REDUCERS) {
+        console.log(res)
+      }
+
+      return res
     })
     .catch(error => {
-      dispatch(reportAxiosError(error))
+      dispatch(reportAxiosError(error, errorChecker))
     })
 }
 
-export const promiseAxiosWrapper = (dispatch, event, opts) => {
-  return new Promise((resolve, reject) => {
-    axios(opts)
-    .then((res) => {
-      if (event !== undefined) {
-        dispatch((typeof event === 'string') ? { type: event, ...res.data } : event(res.data))
-      }
-      resolve(res)
-    })
-    .catch(reject)
-  })
-}
+

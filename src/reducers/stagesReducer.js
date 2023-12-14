@@ -15,7 +15,8 @@ export const stagesInitialState = fromJS({
     modalsNotifications: {},
     workbench_no: 0,
     betweenEndAndStartFlag: false,
-    compositionTimer: false
+    compositionTimer: false,
+    notifications: {}
 })
 
 export const stagesReducer = (state={}, action) => {
@@ -28,7 +29,11 @@ export const stagesReducer = (state={}, action) => {
     switch (action.type){
         case types.STAGES__REPORT_ERROR:
             return state
-              .setIn(['notifications', 'error'], fromJS(action.error))
+              .setIn(['notifications'], fromJS(action))
+              .setIn(['error'], fromJS(action.error))
+      case types.STAGES__RESET_ERROR_NOTIFICATION:
+            return state
+              .deleteIn(['notifications'])
         case types.STAGES__FETCH_COMPOSITION:
             return state
               .set('composition', fromJS(action))
