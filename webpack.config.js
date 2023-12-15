@@ -95,6 +95,7 @@ module.exports = (env) => {
             process.env.WEBPACK_DEV_SERVER !== true 
             ? new webpack.DefinePlugin({ 
                 "process.env.APPLICATION_SOCKET": JSON.stringify(process.env.APPLICATION_SOCKET),
+                "process.env.BUSINESS_LOGIC_SOCKET": JSON.stringify(process.env.BUSINESS_LOGIC_SOCKET),
                 "process.env.INTERFACE_LANGUAGE": JSON.stringify(process.env.INTERFACE_LANGUAGE),
                 "process.env.DEV_SHOW_REDUCERS": JSON.stringify(process.env.DEV_SHOW_REDUCERS),
                 "process.env.SHOW_TEST_SCHEMAS": JSON.stringify(process.env.SHOW_TEST_SCHEMAS),

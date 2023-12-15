@@ -61,7 +61,7 @@ const AdditionalInfo = (props) => {
               <input
                 className={styles.input}
                 name={input.detail}
-                placeholder={`type in ${input.detail}, please`}
+                placeholder={`введите ${input.detail}, пожалуйста`}
                 value={input.value}
                 onChange={event => handleFormChange(index, event)}
               />

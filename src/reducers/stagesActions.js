@@ -307,7 +307,7 @@ export const doAddAdditionalInfo = (dispatch, additionalInfo, plate, successChec
     dispatch,
     undefined,
     {
-      url: `${process.env.APPLICATION_SOCKET}/operator/manual-input`,
+      url: `${process.env.BUSINESS_LOGIC_SOCKET}/operator/manual-input`,
       method: "post",
       data: {
         details: JSON.stringify(additionalInfo),
