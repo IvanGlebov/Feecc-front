@@ -10,22 +10,28 @@ const AdditionalInfo = (props) => {
   const [inputFields, setInputFields] = useState([]);
 
   useEffect(() => {
-    // const data = 'license_plate, weight, length'
     let inputs = [...inputFields];
-    if(props.data.detail.includes(',')) {
-      const array = props.data.detail.split(', ');
-      array.forEach(item => {
-        inputs.push({detail: item, value: ''})
-      })
-      setInputFields([
-       inputs
-      ])
-    } else {
-      inputs.push({detail: props.data.detail, value: ''});
-      setInputFields([
-        inputs
-      ])
-    }
+
+    const data = props.data;
+
+    data.forEach(item => {
+
+      if(item['status_code'] === 504) {
+               
+        const keys = Object.keys(item);
+        const keysArr = keys.filter(key => key !== 'status_code');
+
+        keysArr.forEach(k => {
+          if(item[k]) inputs.push({detail: k, value: ''})
+        })
+      }
+
+    })
+
+    setInputFields([
+      inputs
+    ])
+    
   }, []);
 
   const handleFormChange = (index, event) => {
@@ -39,7 +45,7 @@ const AdditionalInfo = (props) => {
   let licensePlate = '0000000';
   const arr = [...inputFields[0]];
   arr.forEach(item => {
-    if(item.detail === 'licence_plate') {
+    if(item.detail === 'номера') {
       licensePlate = item.value
     }
   })
