@@ -42,14 +42,16 @@ const AdditionalInfo = (props) => {
 
  const submitForm = (e) => {
   e.preventDefault();
-  let licensePlate = '0000000';
   const arr = [...inputFields[0]];
-  arr.forEach(item => {
-    if(item.detail === 'номера') {
-      licensePlate = item.value
-    }
-  })
-  props.onSubmit(arr, licensePlate)
+  const newArr = [];
+  
+  arr.forEach((i => {
+    let key = i.detail
+    let obj = {}
+    obj[key] = i.value;
+    newArr.push(obj)
+  }))
+  props.onSubmit(newArr)
   onClose();
 }
 

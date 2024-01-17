@@ -156,8 +156,10 @@ export const doStartStepRecord = (
       method: "post",
       url: `${process.env.APPLICATION_SOCKET}/workbench/start-operation`,
       data: {
-        additional_info: additionalInfo,
+        workbench_details: {additional_info: additionalInfo},
+        manual_input: null
       },
+      headers: {'Content-Type': 'application/json'}
     },
     successChecker
   ).then(errorChecker);
@@ -302,17 +304,17 @@ export const doUpdateCompositionTimer = (dispatch, value) => {
   })
 }
 
-export const doAddAdditionalInfo = (dispatch, additionalInfo, plate, successChecker, errorChecker) => {
+export const doAddAdditionalInfo = (dispatch, additionalInfo, successChecker, errorChecker, info) => {
   axiosWrapper(
     dispatch,
     undefined,
     {
-      url: `${process.env.BUSINESS_LOGIC_SOCKET}/operator/manual-input`,
+      url: `${process.env.APPLICATION_SOCKET}/workbench/start-operation `,
       method: "post",
       data: {
-        details: JSON.stringify(additionalInfo),
+        workbench_details: JSON.stringify({additional_info: info}),
+        manual_input: JSON.stringify(additionalInfo),
       },
-      params: {license_plate: plate},
       headers: {'Content-Type': 'application/json'}
     }
   ).then(res => {

@@ -298,8 +298,8 @@ class Composition extends React.Component {
   }
 
   // Add missing details
-  async handleMissingDetails(additionalInfo, plate, successChecker, errorChecker, loadBlock = 1, isPause = false) {
-    await this.props.addAdditionalInfo(additionalInfo, plate, successChecker, errorChecker, isPause, (res) => {
+  async handleMissingDetails(additionalInfo, successChecker, errorChecker, loadBlock = 1, isPause = false) {
+    await this.props.addAdditionalInfo(additionalInfo, successChecker, errorChecker, isPause, (res) => {
       console.log(res)
       console.log(additionalInfo)
     });
@@ -473,8 +473,8 @@ class Composition extends React.Component {
           this.props.closeSnackbar(this.state.proceedKey);
         }}
         loading={this.state.helperLoading}
-        onSubmit={(additionalInfo, plate) => {
-          this.handleMissingDetails(additionalInfo, plate, this.helperModalSuccess, this.helperModalError);
+        onSubmit={(additionalInfo) => {
+          this.handleMissingDetails(additionalInfo, this.helperModalSuccess, this.helperModalError);
           
         }}
       />
@@ -800,14 +800,12 @@ export default withSnackbar(
               ),
               addAdditionalInfo: (
                 additionalInfo,
-                plate,
                 successChecker,
                 errorChecker
               ) =>
               doAddAdditionalInfo (
                   dispatch,
                   additionalInfo,
-                  plate,
                   successChecker,
                   errorChecker
                 ),
