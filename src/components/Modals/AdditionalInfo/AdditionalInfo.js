@@ -43,15 +43,14 @@ const AdditionalInfo = (props) => {
  const submitForm = (e) => {
   e.preventDefault();
   const arr = [...inputFields[0]];
-  const newArr = [];
+  const newObj = {};
   
   arr.forEach((i => {
     let key = i.detail
-    let obj = {}
-    obj[key] = i.value;
-    newArr.push(obj)
+    newObj[key] = i.value;
+
   }))
-  props.onSubmit(newArr)
+  props.onSubmit(newObj)
   onClose();
 }
 

@@ -312,8 +312,10 @@ export const doAddAdditionalInfo = (dispatch, additionalInfo, successChecker, er
       url: `${process.env.APPLICATION_SOCKET}/workbench/start-operation `,
       method: "post",
       data: {
-        workbench_details: JSON.stringify({additional_info: info}),
-        manual_input: JSON.stringify(additionalInfo),
+          "workbench_details": {
+            "additional_info": info ? info : {}
+          },
+          "manual_input": additionalInfo
       },
       headers: {'Content-Type': 'application/json'}
     }
