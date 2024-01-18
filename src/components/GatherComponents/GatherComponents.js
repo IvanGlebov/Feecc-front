@@ -23,6 +23,7 @@ export default withTheme(withTranslation()(connect(
     schemas: {}
   }
   componentDidMount () {
+    const { t } = this.props;
     if (this.props.unitComponents !== undefined && this.props.unitComponents !== null){
       for (let schemeID in this.props.unitComponents) {
         this.props.doGetSchema(
@@ -34,7 +35,7 @@ export default withTheme(withTranslation()(connect(
               this.setState({schemas: {...obj}})
               return true
             } else {
-              this.props.raiseNotification('Ошибка получения информации о схеме. Попробуйте перезагрузить страницу.')
+              this.props.raiseNotification(`${t("ErrorGettingFormInformation")}. ${t("TryReloadingThePage")}.`)
               return false
             }
           }, null
