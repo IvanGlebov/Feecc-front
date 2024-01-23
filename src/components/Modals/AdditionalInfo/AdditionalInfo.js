@@ -50,8 +50,8 @@ const AdditionalInfo = (props) => {
     newObj[key] = i.value;
 
   }))
-  props.onSubmit(newObj)
   onClose();
+  props.onSubmit(newObj)
 }
 
   return (

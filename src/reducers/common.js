@@ -31,7 +31,7 @@ export const reportError = (error) => {
   }
 }
 
-export const reportAxiosError = (error, errorChecker) => {
+export const reportAxiosError = (error) => {
   if(error.response.status === 504) {
     return { type: types.STAGES__REPORT_ERROR, error: error.response }
   } else {
@@ -41,8 +41,8 @@ export const reportAxiosError = (error, errorChecker) => {
 
 
 
-export const axiosWrapper = async (dispatch, event, opts, successChecker, errorChecker) => {
-  return await axios(opts)
+export const axiosWrapper = (dispatch, event, opts, successChecker) => {
+  return axios(opts)
     // .then(res => {
     //   if (res.status >= 400)
     //     throw new Error(JSON.stringify(res))
@@ -66,8 +66,19 @@ export const axiosWrapper = async (dispatch, event, opts, successChecker, errorC
       return res
     })
     .catch(error => {
-      dispatch(reportAxiosError(error, errorChecker))
+      dispatch(reportAxiosError(error))
     })
 }
 
-
+export const promiseAxiosWrapper = (dispatch, event, opts) => {
+  return new Promise((resolve, reject) => {
+    axios(opts)
+    .then((res) => {
+      if (event !== undefined) {
+        dispatch((typeof event === 'string') ? { type: event, ...res.data } : event(res.data))
+      }
+      resolve(res)
+    })
+    .catch(reject)
+  })
+}

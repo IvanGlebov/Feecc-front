@@ -106,9 +106,11 @@ class Composition extends React.Component {
       this.fetchComposition();
     }
     if (prevProps.notifications !== this.props.notifications) {
-      if(Object.keys(this.props.notifications).length !== 0) {
-        if(this.props.notifications.error && this.props.notifications.error.status === 504 && this.props.notifications.error.data.length) {
-          this.getHelperModal();
+      if(this.props.notifications) {
+        if(Object.keys(this.props.notifications).length !== 0) {
+          if(this.props.notifications.error && this.props.notifications.error.status === 504 && this.props.notifications.error.data.length) {
+            this.getHelperModal();
+          }
         }
       }
     }

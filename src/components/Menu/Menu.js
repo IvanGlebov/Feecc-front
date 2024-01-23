@@ -113,7 +113,7 @@ export default withSnackbar(
                     // Check if the whole scheme is empty
                     if (schema === null) {
                       this.props.enqueueSnackbar(
-                        "Ошибка. Данная схема отсутствует. Связитесь с администратором для решения данной проблемы.",
+                        "Ошибка. Данная схема отсутствует. Свяжитесь с администратором для решения данной проблемы.",
                         { variant: "error" }
                       );
                       reject(res);
@@ -121,7 +121,7 @@ export default withSnackbar(
                     // Check if this scheme has no stages at all
                     if (schema.production_stages === null) {
                       this.props.enqueueSnackbar(
-                        "Ошибка. Данная схема не содежит ни одного этапа. Связитесь с администратором для решения данной проблемы.",
+                        "Ошибка. Данная схема не содержит ни одного этапа. Свяжитесь с администратором для решения данной проблемы.",
                         { variant: "error" }
                       );
                       reject(res);

@@ -306,7 +306,9 @@ export const doUpdateCompositionTimer = (dispatch, value) => {
 
 export const doAddAdditionalInfo = (dispatch, additionalInfo, successChecker, errorChecker, info) => {
   axiosWrapper(
-    dispatch,
+    dispatch({
+      type: types.STAGES__RESET_ERROR_NOTIFICATION,
+    }),
     undefined,
     {
       url: `${process.env.APPLICATION_SOCKET}/workbench/start-operation `,
