@@ -44,3 +44,5 @@ RecommendToFinish,Рекомендуется завершить финальну
 YouCanRecoverThisCompositionByScanningCode,Вернуться к этой сборке можно будет просканировав соответствующий штрих-код,You can return to this assembly by scanning the corresponding barcode
 YouCanChooseWhatToDoNext,Вы можете выбрать что сделать дальше - перейти на главное меню или вернуться к сборке,You can choose what to do next - go back to the main menu or proceed composition
 ReloadPage,Перезагрузить страницу,Reload page
+license_plate,номера,License Plate
+weight,вес,weight

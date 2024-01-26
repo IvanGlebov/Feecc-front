@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import ModalActionsContext from "@reducers/context/modal-context";
+import { useTranslation } from "react-i18next";
 import { LoadingButton } from "@mui/lab";
 import { CircularProgress } from "@mui/material";
 import styles from "./AdditionalInfo.module.css";
 
 const AdditionalInfo = (props) => {
   const { onClose } = useContext(ModalActionsContext);
-
+  const { t } = useTranslation();
   const [inputFields, setInputFields] = useState([]);
 
   useEffect(() => {
@@ -64,11 +65,11 @@ const AdditionalInfo = (props) => {
       {inputFields.length && inputFields[0].map((input,index) => {
           return (
             <div key={index}>
-              <label className={styles.label}>{input.detail}:</label>
+              <label className={styles.label}>{t(input.detail)}:</label>
               <input
                 className={styles.input}
                 name={input.detail}
-                placeholder={`введите ${input.detail}, пожалуйста`}
+                placeholder={`введите ${t(input.detail)}, пожалуйста`}
                 value={input.value}
                 onChange={event => handleFormChange(index, event)}
               />
