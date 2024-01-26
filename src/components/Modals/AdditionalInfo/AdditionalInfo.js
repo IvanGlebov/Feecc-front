@@ -17,15 +17,11 @@ const AdditionalInfo = (props) => {
 
     data.forEach(item => {
 
-      if(item['status_code'] === 504) {
-               
-        const keys = Object.keys(item);
-        const keysArr = keys.filter(key => key !== 'status_code');
+      const keys = Object.keys(item);
 
-        keysArr.forEach(k => {
-          if(item[k]) inputs.push({detail: k, value: ''})
-        })
-      }
+      keys.forEach(k => {
+        if(item[k]) inputs.push({detail: k, value: ''})
+      })
 
     })
 
