@@ -16,22 +16,20 @@ const ProceedNotSaved = (props) => {
     <div className={styles.contentWrapper}>
       <div className={styles.contentHeader}>{t("ImportantMessage")}</div>
       <div className={styles.contentText}>
-        При продолжении <strong>без</strong> сохранения вам нужно будет
-        выполнить определённые действия позже. Без этих действий изделие не
-        будет считатся завершённым. Данные об изделии <strong>не</strong> были выгружены в сеть IPFS, 
-        но они <strong>сохранены локально</strong> и к этому изделию всегда можно будет
-        вернуться позже.
+        {t('IfYouContinue')} <strong>{t('Without')}</strong> {t('SavingYouWillNeed')}. <br />
+        {t('ProductWillNotWillBeConsideredCompleted')}. {t('ProductInformation')} <strong>{t('Not')}</strong> {t('ButTheyAre')}, {t('UploadedToTheIPFSNetwork')}
+        <strong> {t('SavedLocally')}</strong> {t('ComeBackLater')}.
         <br />
         <br />
-        При появлении возможности сохранить изделие вам нужно будет:
+        {t('WhenTheOpportunityArises')}:
         <br />
-        - Просканировать штрих-код изделия.
+        - {t('ScanTheProductBarcode')}.
         <br />
-        - Сохранить паспорт.
+        - {t('SaveYourPassport')}.
         <br />
         <br />
-        При удачном сохранении изделие будет считаться полностью завершённым и будет выгружено в сеть IPFS.
-        Если возникает текущая ошибка, то следует попробовать позже.
+        {t('IfSavedSuccessfully')}. <br />
+        {t('IfTheCurrentErrorOccurs')}, {t('TryAgainLater')}.
       </div>
       <div className={styles.buttonsWrapper}>
         <LoadingButton
@@ -43,13 +41,13 @@ const ProceedNotSaved = (props) => {
           onClick={() => {
             props.onNoSave && props.onNoSave();
             enqueueSnackbar(
-              `Паспорт ${props.unitID} не был сохранён в IPFS. Вам следует вернуться к нему позже`,
+              `${t('Passport')} ${props.unitID} ${t('WasNotSavedInIPFS')}. ${t('YouShouldComeBackToItLater')}`,
               { variant: "warning", action: CloseActionButton }
             );
             onClose();
           }}
         >
-          Продолжить без сохранения
+          {t('ContinueWithoutSaving')}
         </LoadingButton>
         <LoadingButton
           size="large"
@@ -59,7 +57,7 @@ const ProceedNotSaved = (props) => {
           variant="contained"
           onClick={onClose}
         >
-          Вернуться
+          {t('Return')}
         </LoadingButton>
       </div>
     </div>

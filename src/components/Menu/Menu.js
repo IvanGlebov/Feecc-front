@@ -79,13 +79,14 @@ export default withSnackbar(
 
 
             this.props.doGetSchemasNames((res) => {
+              const { t } = this.props;
               if (res.status_code === 200) {
                 if (
                   res.available_schemas.length === 0 &&
                   this.props.authorized
                 ) {
                   this.props.enqueueSnackbar(
-                    "Внимание! Доступно 0 сборок. Свяжитесь с администратором системы для добавления необходимых сборок в базу.",
+                    `${t('Attention')}! ${t('BuildsAvailableZero')}. ${t('ContactYourSystemAdministratorToAddTheNecessaryAssembliesToTheDatabase')}.`,
                     { variant: "warning" }
                   );
                 }
@@ -103,6 +104,7 @@ export default withSnackbar(
           }
 
           handleCreateUnit = (item, index) => {
+            const { t } = this.props;
             this.toggleButtonLoading(index);
             this.props
               .newDoGetSchema(item.schema_id)
@@ -113,7 +115,7 @@ export default withSnackbar(
                     // Check if the whole scheme is empty
                     if (schema === null) {
                       this.props.enqueueSnackbar(
-                        "Ошибка. Данная схема отсутствует. Связитесь с администратором для решения данной проблемы.",
+                        `${t('Error')}. ${t('ThisSchemeIsNotAvailable')}. ${t('ContactYourAdministratorToResolveThisIssue')}.`,
                         { variant: "error" }
                       );
                       reject(res);
@@ -121,7 +123,7 @@ export default withSnackbar(
                     // Check if this scheme has no stages at all
                     if (schema.production_stages === null) {
                       this.props.enqueueSnackbar(
-                        "Ошибка. Данная схема не содежит ни одного этапа. Связитесь с администратором для решения данной проблемы.",
+                        `${t('Error')}. ${t('ThisSchemeDoesNotContainSingleStage')}. ${t('ContactYourAdministratorToResolveThisIssue')}.`,
                         { variant: "error" }
                       );
                       reject(res);
