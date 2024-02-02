@@ -101,6 +101,12 @@ class Composition extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+
+    if(prevProps.state !== this.props.state) {
+      // If state changed - fetch composition
+      this.fetchComposition();
+    }
+
     if (prevProps.compositionID !== this.props.compositionID) {
       // If compositionID changed - fetch composition
       this.fetchComposition();
@@ -204,17 +210,17 @@ class Composition extends React.Component {
                       if (newCompleted.length === 0) {
                         this.setState({ activeStep: 0 });
                         setTimeout(() => {
-                          this.stopwatches[0]?.start();
+                          // this.stopwatches[0]?.start();
                         }, 300);
                       } else if (newPending.length > 0) {
                         this.setState({
                           activeStep: newCompleted.length,
                         });
-                        setTimeout(() => {
-                          this.stopwatches[
-                            newCompleted.length
-                          ]?.start();
-                        }, 300);
+                        // setTimeout(() => {
+                        //   this.stopwatches[
+                        //     newCompleted.length
+                        //   ]?.start();
+                        // }, 300);
                       }
                     } else {
                       if (newPending.length > 0) {
@@ -261,7 +267,7 @@ class Composition extends React.Component {
             this.toggleButtonLoading(loadingNumber, false);
             resolve("OK");
             setTimeout(() => {
-              this.stopwatches[this.state.activeStep]?.start();
+              // this.stopwatches[this.state.activeStep]?.start();
             }, 300);
             return true;
           } else {
