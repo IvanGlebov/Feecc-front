@@ -225,6 +225,14 @@ export const doRemoveNotification = (dispatch, notificationID) => {
     notificationID: notificationID,
   });
 };
+
+// reset notifications
+export const doResetNotifications = (dispatch) => {
+  dispatch({
+    type: types.STAGES__RESET_ERROR_NOTIFICATION,
+  });
+};
+
 // Reworked
 export const doSetSteps = (dispatch, steps) => {
   dispatch({

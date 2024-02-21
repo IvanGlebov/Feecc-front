@@ -51,6 +51,11 @@ const AdditionalInfo = (props) => {
   props.onSubmit(newObj)
 }
 
+const closeModal = () => {
+  onClose();
+  props.onNoSave();
+}
+
   return (
     <div className={styles.contentWrapper}>
       <div className={styles.contentHeader}>Внесите недостающие данные</div>
@@ -90,7 +95,7 @@ const AdditionalInfo = (props) => {
           loading={false}
           color="primary"
           variant="contained"
-          onClick={onClose}
+          onClick={closeModal}
         >
           Закрыть
         </LoadingButton>

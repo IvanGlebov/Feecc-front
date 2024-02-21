@@ -11,7 +11,8 @@ import {
   doSetSteps,
   doStartStepRecord,
   doStopStepRecord,
-  doAddAdditionalInfo
+  doAddAdditionalInfo,
+  doResetNotifications
 } from "@reducers/stagesActions";
 import { push } from "connected-react-router";
 import Stopwatch from "@components/Stopwatch/Stopwatch";
@@ -63,6 +64,7 @@ class Composition extends React.Component {
     doGetUnitDetails: PropTypes.func.isRequired,
     enqueueSnackbar: PropTypes.func.isRequired,
     addAdditionalInfo: PropTypes.func.isRequired,
+    resetNotifications: PropTypes.func.isRequired
   };
 
   constructor(props) {
@@ -479,6 +481,7 @@ class Composition extends React.Component {
         data={this.props.notifications.error.data}
         onNoSave={() => {
           this.props.closeSnackbar(this.state.proceedKey);
+          this.props.resetNotifications();
         }}
         loading={this.state.helperLoading}
         onSubmit={(additionalInfo) => {
@@ -793,6 +796,8 @@ export default withSnackbar(
                 successChecker,
                 errorChecker
               ),
+            resetNotifications: () => 
+                doResetNotifications(dispatch),
             stopStepRecord: (
               additionalInfo,
               prematureEnding,
