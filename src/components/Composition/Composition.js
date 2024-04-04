@@ -11,6 +11,8 @@ import {
   doSetSteps,
   doStartStepRecord,
   doStopStepRecord,
+  doAddAdditionalInfo,
+  doResetNotifications
 } from "@reducers/stagesActions";
 import { push } from "connected-react-router";
 import Stopwatch from "@components/Stopwatch/Stopwatch";
@@ -31,7 +33,9 @@ import { LoadingButton } from "@mui/lab";
 
 import ToMainMenuModal from "../Modals/ToMainMenu/ToMainMenuModal";
 import ProceedNotSaved from "../Modals/ProceedNotSaved/ProceedNotSaved";
+import HelperModal from "../Modals/AdditionalInfo/AdditionalInfo";
 import RepeatCloseActionButton from "../RepeatCloseActionButton/RepeatCloseActionButton";
+import CloseActionButton from "../CloseActionButton/CloseActionButton";
 import {
   doUpdateCompositionTimer,
   newDoCompositionUpload,
@@ -42,6 +46,7 @@ class Composition extends React.Component {
   static propTypes = {
     steps: PropTypes.array,
     unit: PropTypes.object,
+    notifications: PropTypes.object,
     compositionOngoing: PropTypes.bool,
     compositionID: PropTypes.string,
     afterPause: PropTypes.string,
@@ -58,6 +63,8 @@ class Composition extends React.Component {
     doGetSchema: PropTypes.func.isRequired,
     doGetUnitDetails: PropTypes.func.isRequired,
     enqueueSnackbar: PropTypes.func.isRequired,
+    addAdditionalInfo: PropTypes.func.isRequired,
+    resetNotifications: PropTypes.func.isRequired
   };
 
   constructor(props) {
@@ -73,6 +80,7 @@ class Composition extends React.Component {
     loading: [],
     onPause: false,
     afterPause: false,
+    helperLoading: false
   };
 
   closeButtonAction = (key) => (
@@ -95,9 +103,24 @@ class Composition extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+
+    if(prevProps.state !== this.props.state) {
+      // If state changed - fetch composition
+      this.fetchComposition();
+    }
+
     if (prevProps.compositionID !== this.props.compositionID) {
       // If compositionID changed - fetch composition
       this.fetchComposition();
+    }
+    if (prevProps.notifications !== this.props.notifications) {
+      if(this.props.notifications) {
+        if(Object.keys(this.props.notifications).length !== 0) {
+          if(this.props.notifications.error && this.props.notifications.error.status === 504 && this.props.notifications.error.data.length) {
+            this.getHelperModal();
+          }
+        }
+      }
     }
   }
 
@@ -190,17 +213,17 @@ class Composition extends React.Component {
                       if (newCompleted.length === 0) {
                         this.setState({ activeStep: 0 });
                         setTimeout(() => {
-                          this.stopwatches[0]?.start();
+                          // this.stopwatches[0]?.start();
                         }, 300);
                       } else if (newPending.length > 0) {
                         this.setState({
                           activeStep: newCompleted.length,
                         });
-                        setTimeout(() => {
-                          this.stopwatches[
-                            newCompleted.length
-                          ]?.start();
-                        }, 300);
+                        // setTimeout(() => {
+                        //   this.stopwatches[
+                        //     newCompleted.length
+                        //   ]?.start();
+                        // }, 300);
                       }
                     } else {
                       if (newPending.length > 0) {
@@ -248,7 +271,7 @@ class Composition extends React.Component {
             this.toggleButtonLoading(loadingNumber, false);
             resolve("OK");
             setTimeout(() => {
-              this.stopwatches[this.state.activeStep]?.start();
+              // this.stopwatches[this.state.activeStep]?.start();
             }, 300);
             return true;
           } else {
@@ -286,6 +309,15 @@ class Composition extends React.Component {
       });
     });
   }
+
+  // Add missing details
+  async handleMissingDetails(additionalInfo, successChecker, errorChecker, loadBlock = 1, isPause = false) {
+    await this.props.addAdditionalInfo(additionalInfo, successChecker, errorChecker, isPause, (res) => {
+      console.log(res)
+      console.log(additionalInfo)
+    });
+  }
+
 
   // Stop current record, start next and move step
   handleNextCompositionStep(nextTitle, nextStepID) {
@@ -422,6 +454,50 @@ class Composition extends React.Component {
     return new Date(seconds * 1000).toISOString().substr(11, 8);
   };
 
+  startComposition = () => {
+    this.handleStageRecordStart(this.props.steps[0]?.name).then(
+      (res) => {
+        this.setState({ activeStep: this.state.activeStep + 1 });
+        document.getElementById("step_0").scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    )
+  };
+
+  helperModalSuccess = () => {
+    this.props.enqueueSnackbar(
+      `Детали были успешно добавлены!`,
+      { variant: "success", action: CloseActionButton, }
+    );
+  }
+
+  helperModalError = (err) => {
+    this.props.enqueueSnackbar(
+      `Не удалось добавить недостающие детали. Попробуйте позже. Если ошибка повторится, то свяжитесь с системным администратором для устранения проблемы. `,
+      { variant: "error", action: CloseActionButton,}
+    );
+  }
+  
+
+  getHelperModal = () => {
+    this.props.context.onOpen(
+      <HelperModal
+        data={this.props.notifications.error.data}
+        onNoSave={() => {
+          this.props.closeSnackbar(this.state.proceedKey);
+          this.props.resetNotifications();
+        }}
+        loading={this.state.helperLoading}
+        onSubmit={(additionalInfo) => {
+          this.handleMissingDetails(additionalInfo, this.helperModalSuccess, this.helperModalError);
+          
+        }}
+      />
+    )
+  };
+
   render() {
     const { t } = this.props;
     const { activeStep, loading, onPause, afterPauseStepName } = this.state;
@@ -439,17 +515,7 @@ class Composition extends React.Component {
                 color="primary"
                 disabled={loading[1]}
                 loading={loading[1]}
-                onClick={() => {
-                  this.handleStageRecordStart(this.props.steps[0]?.name).then(
-                    () => {
-                      this.setState({ activeStep: this.state.activeStep + 1 });
-                      document.getElementById("step_0").scrollIntoView({
-                        behavior: "smooth",
-                        block: "center",
-                      });
-                    }
-                  );
-                }}
+                onClick={() => this.startComposition()}
               >
                 {t("StartComposition")}
               </LoadingButton>
@@ -709,6 +775,7 @@ export default withSnackbar(
           (store) => ({
             steps: store.stages.get("steps")?.toJS(),
             unit: store.stages.get("unit")?.toJS(),
+            notifications: store.stages.get("notifications")?.toJS(),
             composition: store.stages.get("composition")?.toJS(),
             compositionOngoing: store.stages.getIn([
               "composition",
@@ -735,6 +802,8 @@ export default withSnackbar(
                 successChecker,
                 errorChecker
               ),
+            resetNotifications: () => 
+                doResetNotifications(dispatch),
             stopStepRecord: (
               additionalInfo,
               prematureEnding,
@@ -748,6 +817,17 @@ export default withSnackbar(
                 successChecker,
                 errorChecker
               ),
+              addAdditionalInfo: (
+                additionalInfo,
+                successChecker,
+                errorChecker
+              ) =>
+              doAddAdditionalInfo (
+                  dispatch,
+                  additionalInfo,
+                  successChecker,
+                  errorChecker
+                ),
             uploadComposition: (successChecker, errorChecker) =>
               doCompositionUpload(dispatch, successChecker, errorChecker),
             newUploadComposition: () => newDoCompositionUpload(dispatch),

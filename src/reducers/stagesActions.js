@@ -151,13 +151,15 @@ export const doStartStepRecord = (
 ) => {
   axiosWrapper(
     dispatch,
-    undefined,
+    types.STAGES__RESET_ERROR_NOTIFICATION,
     {
       method: "post",
       url: `${process.env.APPLICATION_SOCKET}/workbench/start-operation`,
       data: {
-        additional_info: additionalInfo,
+        workbench_details: {additional_info: additionalInfo},
+        manual_input: null
       },
+      headers: {'Content-Type': 'application/json'}
     },
     successChecker
   ).then(errorChecker);
@@ -223,6 +225,14 @@ export const doRemoveNotification = (dispatch, notificationID) => {
     notificationID: notificationID,
   });
 };
+
+// reset notifications
+export const doResetNotifications = (dispatch) => {
+  dispatch({
+    type: types.STAGES__RESET_ERROR_NOTIFICATION,
+  });
+};
+
 // Reworked
 export const doSetSteps = (dispatch, steps) => {
   dispatch({
@@ -301,3 +311,29 @@ export const doUpdateCompositionTimer = (dispatch, value) => {
     value
   })
 }
+
+export const doAddAdditionalInfo = (dispatch, additionalInfo, successChecker, errorChecker, info) => {
+  axiosWrapper(
+    dispatch({
+      type: types.STAGES__RESET_ERROR_NOTIFICATION,
+    }),
+    undefined,
+    {
+      url: `${process.env.APPLICATION_SOCKET}/workbench/start-operation `,
+      method: "post",
+      data: {
+          "workbench_details": {
+            "additional_info": info ? info : {}
+          },
+          "manual_input": additionalInfo
+      },
+      headers: {'Content-Type': 'application/json'}
+    }
+  ).then(res => {
+    if(res && res.status === 200) {
+      successChecker()
+    } else {
+      errorChecker();
+    }
+  });
+};

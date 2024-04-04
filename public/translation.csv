@@ -104,5 +104,5 @@ Seconds,секунд,seconds
 TheConnectionToTheServerHasBeenRestored,Соединение с сервером восстановлено,The connection to the server has been restored
 ConnectionToServerEstablished,Соединение с сервером установлено,Connection to server established
 Repeat,Повторить,Repeat
-
-
+license_plate,передний номер,License Plate
+weight,вес,weight
