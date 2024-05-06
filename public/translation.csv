@@ -10,7 +10,7 @@ FinishSession,Закончить сессию,Finish session
 Finish,Закончить,Finish
 Next,Далее,Next
 QualityMonitoringSystem,"Система контроля качества производства на базе платформы ""Feecc""","Production quality control system based on the ""Feecc"" platform"
-AuthorizeToProceed,Для начала сборки авторизуйтесь,Authorize to proceed
+AuthorizeToProceed,Для начала сборки авторизуйтесьс помощью логина или карточки,Authorize using card or login to proceed 
 NotEnoughDuration,Слишком малая длительность этапа!,Step duration is too small!
 CancelComposition,Отменить сборку,Cancel composition
 SavePassport,Сохранить паспорт,Save passport
@@ -44,65 +44,10 @@ RecommendToFinish,Рекомендуется завершить финальну
 YouCanRecoverThisCompositionByScanningCode,Вернуться к этой сборке можно будет просканировав соответствующий штрих-код,You can return to this assembly by scanning the corresponding barcode
 YouCanChooseWhatToDoNext,Вы можете выбрать что сделать дальше - перейти на главное меню или вернуться к сборке,You can choose what to do next - go back to the main menu or proceed composition
 ReloadPage,Перезагрузить страницу,Reload page
-IfYouContinue,При продолжении,If you continue
-Without,без,without
-SavingYouWillNeed,сохранения вам нужно будет выполнить определённые действия позже,saving you will need perform certain actions later
-ProductWillNotWillBeConsideredCompleted,Без этих действий изделие не будет считатся завершённым,Without these steps the product will not will be considered completed
-ProductInformation,Данные об изделии,Product information
-Not,не,was not
-UploadedToTheIPFSNetwork,были выгружены в сеть IPFS,uploaded to the IPFS network
-ButTheyAre,но они,but they are
-SavedLocally,сохранены локально,saved locally
-ComeBackLater,и к этому изделию всегда можно будет вернуться позже,and this product will always be available come back later
-WhenTheOpportunityArises,При появлении возможности сохранить изделие вам нужно будет,When the opportunity arises to save the product, you will need to
-ScanTheProductBarcode,Просканировать штрих-код изделия,Scan the product barcode
-SaveYourPassport,Сохранить паспорт,Save your passport
-IfSavedSuccessfully,При удачном сохранении изделие будет считаться полностью завершённым и будет выгружено в сеть IPFS,If saved successfully the product will be considered completely completed and will be uploaded to the IPFS network
-TryAgainLater,то следует попробовать позже,try again later
-IfTheCurrentErrorOccurs,Если возникает текущая ошибка,If the current error occurs
-Passport,Паспорт,Passport
-WasNotSavedInIPFS,не был сохранён в IPFS,was not saved in IPFS
-YouShouldComeBackToItLater,Вам следует вернуться к нему позже,You should come back to it later
-ContinueWithoutSaving,Продолжить без сохранения,Continue without saving
-Return,Вернуться,Return
-CloseButton,Закрыть,Close
-FailedToRetrieveProductInformation,Не удалось получить информацию об изделии,Failed to retrieve product information
-TryLater,Попробуйте позже,Try later
-IfTheErrorPersists,Если ошибка повторится,If the error persists
-ContactYourSystemAdministratorToResolveTheProblem,то свяжитесь с системным администратором для устранения проблемы,contact your system administrator to resolve the problem
-ErrorCode,Код ошибки,Error code
-FailedToStartRecordingTheStage,Не удалось начать запись этапа,Failed to start recording the stage
-PleaseTryAgainLater,Попробуйте повторить позже,Please try again later
-IfThisErrorOccursMultipleTimesContactYourSystemAdministrator,При многократном повторении данной ошибки обратитесь к системному администратору,If this error occurs multiple times, contact your system administrator
-FailedToCompleteStageRecording,Не удалось завершить запись этапа,Failed to complete stage recording
-ErrorLoadingAssembly,Ошибка загзузки сборки,Error loading assembly
-ResponseCode,Код ответа,Response code
-FailedToRemoveAssemblyFromTable,Не удалось убрать сборку со стола,Failed to remove assembly from table
-Unpause,Снять с паузы,Unpause
-Attention,Внимание,Attention
-BuildsAvailableZero,Доступно 0 сборок,0 builds available
-ContactYourSystemAdministratorToAddTheNecessaryAssembliesToTheDatabase,Свяжитесь с администратором системы для добавления необходимых сборок в базу,Contact your system administrator to add the necessary assemblies to the database
-Error,Ошибка,Error
-ThisSchemeDoesNotContainSingleStage,Данная схема не содежит ни одного этапа,This scheme does not contain a single stage
-ThisSchemeIsNotAvailable,Данная схема отсутствует,This scheme is not available
-ContactYourAdministratorToResolveThisIssue,Связитесь с администратором для решения данной проблемы,Contact your administrator to resolve this issue
-YouAreAboutToReloadThePage,Вы собираетесь перезагрузить страницу,You are about to reload the page
-This,Это,This
-May,может,may
-But,но,but
-Shouldn't,не должно,shouldn't
-LeadToErrorsAtThisStage,привести к ошибкам на этом этапе,lead to errors at this stage
-IfItIsPossibleNotToReloadThePage,Если есть возможность не перезагружать страницу,If it is possible not to reload the page
-ThenYouShouldUseIt,то стоит воспользоваться ею,then you should use it
-Reboot,Перезагрузить,Reboot
-SuccessfullyUploadedToIPFSNetwork,успешно загружен в сеть IPFS,successfully uploaded to IPFS network
-ErrorGettingFormInformation,Ошибка получения информации о схеме,Error getting form information
-TryReloadingThePage,Попробуйте перезагрузить страницу,Try reloading the page
-ConnectionToTheServerCouldNotBeEstablished,Соединение с сервером не может быть установлено,A connection to the server could not be established
-TryingToReconnectVia,Попытка повторного подключения через,Trying to reconnect via
-Seconds,секунд,seconds
-TheConnectionToTheServerHasBeenRestored,Соединение с сервером восстановлено,The connection to the server has been restored
-ConnectionToServerEstablished,Соединение с сервером установлено,Connection to server established
-Repeat,Повторить,Repeat
 license_plate,передний номер,License Plate
 weight,вес,weight
+Login,имя пользователя,Login
+Password,пароль,Password
+typeLogin,введите имя пользователя,type in Login
+typePassword,введите пароль,type in password
+SignIn,Войти,Sign in

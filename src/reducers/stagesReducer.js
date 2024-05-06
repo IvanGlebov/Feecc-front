@@ -4,7 +4,7 @@ import { types } from './common'
 
 export const stagesInitialState = fromJS({
     steps: [
-     {'name': 'title1', 'descriprtion': 'context1', 'duration_seconds': 300 },
+     {'name': 'title1', 'description': 'context1', 'duration_seconds': 300 },
      {'name': 'title2', 'description': 'context2', 'duration_seconds': 250 }
     ],
     productionSchemas: [{'schema_id':'test_id_123', 'schema_name': 'simple schema name'}],
@@ -16,7 +16,9 @@ export const stagesInitialState = fromJS({
     workbench_no: 0,
     betweenEndAndStartFlag: false,
     compositionTimer: false,
-    notifications: {}
+    notifications: {},
+    isAuthorizing: false,
+    employee_logged_in: false
 })
 
 export const stagesReducer = (state={}, action) => {
@@ -77,6 +79,17 @@ export const stagesReducer = (state={}, action) => {
         case types.STAGES__UPDATE_COMPOSITION_TIMER: 
             return state
               .set('compositionTimer', action.value)
+        case types.STAGES__TRY_TO_AUTHORIZE_EMPLOYEE: 
+          return state
+            .set('isAuthorizing', true)
+        case types.STAGES__AUTHORIZE_EMPLOYEE: 
+            return state
+              .set('employee_logged_in', true)
+              .set('isAuthorizing', false)
+        case types.STAGES__UNAUTHORIZE_EMPLOYEE: 
+            return state
+              .set('employee_logged_in', false)
+              .set('isAuthorizing', false)
         default:
             return state
     }

@@ -7,7 +7,7 @@ import MVASLogo from '../../static/imageLeft.png'
 import { push } from "connected-react-router";
 import Stopwatch from "@components/Stopwatch/Stopwatch";
 import PropTypes from "prop-types";
-import { doSetCompositionID } from "@reducers/stagesActions";
+import { doSetCompositionID, authorize } from "@reducers/stagesActions";
 import { setQueryValues } from "@reducers/routerActions";
 import { doUpdateCompositionTimer } from "../../reducers/stagesActions";
 
@@ -20,6 +20,7 @@ export default withTranslation()(connect(
     usedTimestamps: store.stages.get('usedTimestamps')?.toJS(),
     state: store.stages.getIn(['composition', 'state']),
     compositionTimer: store.stages.get('compositionTimer'),
+    employee_logged_in: store.stages.get('employee_logged_in'),
   }),
   (dispatch) => ({
     redirectToLogin: () => dispatch(push('/')),
@@ -28,7 +29,8 @@ export default withTranslation()(connect(
     redirectToGatherComponents: () => dispatch(push('/gatherComponents')),
     setQuery: (query, url) => setQueryValues(dispatch, query, url),
     setCompositionID: (unitID) => doSetCompositionID(dispatch, unitID),
-    updateCompositionTimer: (value) => doUpdateCompositionTimer(dispatch, value)
+    updateCompositionTimer: (value) => doUpdateCompositionTimer(dispatch, value),
+    authorize: () => authorize(dispatch)
   })
 )(class Header extends React.Component {
 
@@ -44,6 +46,7 @@ export default withTranslation()(connect(
     redirectToComposition: PropTypes.func.isRequired,
     setQuery: PropTypes.func.isRequired,
     setCompositionID: PropTypes.func.isRequired,
+    authorize: PropTypes.func.isRequired,
   }
 
   state = {
@@ -56,16 +59,23 @@ export default withTranslation()(connect(
   }
 
   componentDidMount () {
+    
+    if(window.sessionStorage.getItem("isAuthorized") === 'true') {
+      this.props.authorize();
+    }
+
     setTimeout(() => {
-      if (!this.props.composition.employee_logged_in) {
+      if (!this.props.employee_logged_in) {
         this.props.redirectToLogin()
       }
     }, 300)
+
   }
 
   componentDidUpdate (prevProps, prevState, snapshot) {
     let page = this.props.location.split('/')[1]
-    if (this.props.composition.employee_logged_in) {
+    if (this.props.employee_logged_in) {
+
       switch (this.props.state) {
         case 'AuthorizedIdling':
           if (page !== 'menu')

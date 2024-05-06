@@ -91,7 +91,7 @@ export const newDoAssignUnit = (dispatch, unitID) => {
 export const doLogout = (dispatch, successChecker, errorChecker) => {
   axiosWrapper(
     dispatch,
-    types.STAGES__FETCH_COMPOSITION,
+    types.STAGES__UNAUTHORIZE_EMPLOYEE,
     {
       method: "post",
       url: `${process.env.APPLICATION_SOCKET}/employee/log-out`,
@@ -99,7 +99,8 @@ export const doLogout = (dispatch, successChecker, errorChecker) => {
         workbench_no: store.getState().stages.get("workbench_no"),
       },
     },
-    successChecker
+    successChecker,
+    window.sessionStorage.setItem("isAuthorized", false)
   ).then(errorChecker);
 };
 // Reworked
@@ -335,5 +336,40 @@ export const doAddAdditionalInfo = (dispatch, additionalInfo, successChecker, er
     } else {
       errorChecker();
     }
+  });
+};
+
+export const doLogin = (dispatch, data, successChecker, errorChecker) => {
+  if (data) {
+    axiosWrapper(
+      dispatch({
+        type: types.STAGES__TRY_TO_AUTHORIZE_EMPLOYEE,
+      }),
+      undefined,
+      {
+        url: `${process.env.APPLICATION_SOCKET}/employee/login-creds `,
+        method: "post",
+        data: {
+          "employee_username": data.username,
+          "employee_password": data.password,
+        },
+        headers: {'Content-Type': 'application/json'}
+      }
+    ).then(res => {
+      if(res && res.status === 200) {
+        successChecker()
+      } else {
+        errorChecker();
+      }
+    }).catch((e) => {
+      errorChecker();
+    });
+  }
+};
+
+// authorize employee
+export const authorize = (dispatch) => {
+  dispatch({
+    type: types.STAGES__AUTHORIZE_EMPLOYEE,
   });
 };

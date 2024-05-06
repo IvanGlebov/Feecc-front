@@ -27,6 +27,7 @@ export default withSnackbar(
     connect(
       (store) => ({
         location: store.router.location.pathname,
+        employee_logged_in: store.stages.get("employee_logged_in"),
       }),
       (dispatch) => ({
         raiseNotification: (notificationMessage) =>
@@ -38,6 +39,7 @@ export default withSnackbar(
             doGetSchemasNames(dispatch, successChecker, errorChecker),
         doFetchComposition: (composition) =>
           doFetchComposition(dispatch, composition),
+        
       })
     )(
       class App extends Component {
@@ -73,7 +75,7 @@ export default withSnackbar(
             this.state.eventSource !== undefined
           ) {
             this.state.eventSource.close();
-            this.setState({ eventSrouce: null });
+            this.setState({ eventSource: null });
             clearTimeout(this.state.reconnectTimer);
           }
           const eventSource = new EventSource(
@@ -84,45 +86,44 @@ export default withSnackbar(
 
             this.props.doFetchComposition(res);
             let location = this.props.location.split("/")[1];
-            switch (res.state) {
-              case "ProductionStageOngoing":
-                // console.log("PRODUCTION__ONGOING")
-                if (location !== "composition") this.props.goToComposition();
-                break;
-              case "GatherComponents":
-                // console.log("GATHER__COMPONENTS")
-                if (location !== "gatherComponents")
-                  this.props.goToGatheringComponents();
-                break;
-              case "AwaitLogin":
-                // console.log("AWAIT__LOGIN")
-                break;
-              case "AuthorizedIdling":
-                if (location !== "menu") {
-                  this.props.goToMenu();
-                  // console.log("==ROUTER== redirect to menu");
-                }
-                // console.log("AUTHORIZED__IDLING")
-                break;
-              case "UnitAssignedIdling":
-                // console.log('UNIT__ASSIGNED__IDLING')
-                if (location !== "composition") this.props.goToComposition();
-                break;
-              default:
-                break;
-            }
+            // switch (res.state) {
+            //   case "ProductionStageOngoing":
+            //     // console.log("PRODUCTION__ONGOING")
+            //     if (location !== "composition") this.props.goToComposition();
+            //     break;
+            //   case "GatherComponents":
+            //     // console.log("GATHER__COMPONENTS")
+            //     if (location !== "gatherComponents")
+            //       this.props.goToGatheringComponents();
+            //     break;
+            //   case "AwaitLogin":
+            //     console.log("AWAIT__LOGIN")
+            //     break;
+            //   case "AuthorizedIdling":
+            //     if (location !== "menu") {
+            //       this.props.goToMenu();
+            //       // console.log("==ROUTER== redirect to menu");
+            //     }
+            //     console.log("AUTHORIZED__IDLING")
+            //     break;
+            //   case "UnitAssignedIdling":
+            //     // console.log('UNIT__ASSIGNED__IDLING')
+            //     if (location !== "composition") this.props.goToComposition();
+            //     break;
+            //   default:
+            //     break;
+            // }
           };
           eventSource.onerror = (e) => {
-            const { t } = this.props;
             this.setState({ SSEErrorFlag: true });
             const errorEvent = this.props.enqueueSnackbar(
-              `${t("ConnectionToTheServerCouldNotBeEstablished")}. ${t("TryingToReconnectVia")} ${this.state.reconnectInterval} ${t("seconds")}`,
+              `Соединение с сервером не может быть установлено. Попытка повторного подключения через ${this.state.reconnectInterval} секунд`,
               {
                 variant: "error",
                 persist: true,
                 action: RepeatCloseActionButton.bind({
                   action: this.setupSSEConnection,
-                  actionName: `${t('Repeat')}`,
+                  actionName: "Повторить",
                 }),
                 preventDuplicate: true,
               }
@@ -134,12 +135,11 @@ export default withSnackbar(
           };
 
           eventSource.onopen = (e) => {
-            const { t } = this.props;
             this.props.closeSnackbar(this.state.errorEvent);
 
             if (this.state.SSEErrorFlag) {
               this.props.enqueueSnackbar(
-                `${t('TheConnectionToTheServerHasBeenRestored')}`,
+                "Соединение с сервером восстановлено",
                 {
                   variant: "success",
                   persist: false,
@@ -148,15 +148,12 @@ export default withSnackbar(
                 }
               );
             } else {
-              this.props.enqueueSnackbar(
-                `${t("ConnectionToServerEstablished")}`,
-                {
-                  variant: "success",
-                  persist: false,
-                  action: CloseActionButton,
-                  preventDuplicate: false,
-                }
-              );
+              this.props.enqueueSnackbar("Соединение с сервером установлено", {
+                variant: "success",
+                persist: false,
+                action: CloseActionButton,
+                preventDuplicate: false,
+              });
             }
           };
           this.setState({ eventSource });
@@ -216,7 +213,6 @@ export default withSnackbar(
         };
 
         componentDidMount() {
-          const { t } = this.props;
           this.setupSSEConnection();
           this.setupNotificationsSSEConnection();
 
@@ -225,10 +221,10 @@ export default withSnackbar(
             if (res.status_code === 200) {
               if (
                 res.available_schemas.length === 0 &&
-                this.props.authorized
+                this.props.employee_logged_in
               ) {
                 this.props.enqueueSnackbar(
-                  `${t('Attention')}! ${t('BuildsAvailableZero')}. ${t('ContactYourSystemAdministratorToAddTheNecessaryAssembliesToTheDatabase')}.`,
+                  "Внимание! Доступно 0 сборок. Свяжитесь с администратором системы для добавления необходимых сборок в базу.",
                   { variant: "warning" }
                 );
               }
