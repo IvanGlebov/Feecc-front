@@ -80,7 +80,9 @@ class Composition extends React.Component {
     loading: [],
     onPause: false,
     afterPause: false,
-    helperLoading: false
+    helperLoading: false,
+    completedStages: [],
+    pendingStages: [],
   };
 
   closeButtonAction = (key) => (
@@ -143,28 +145,28 @@ class Composition extends React.Component {
       this.props.doGetUnitDetails(
         this.props.compositionID,
         (res) => {
-          if (res.status_code === 200) {
+          if (res && res.status_code == 200) {
             // console.log("Unit details received")
             let biography = [];
-            if (res.unit_biography_completed.length > 0)
-              biography = res.unit_biography_completed;
-            if (res.unit_biography_pending.length > 0)
-              biography = [...biography, ...res.unit_biography_pending];
-
+            if (res.unit_operation_stages_completed.length > 0)
+              biography = res.unit_operation_stages_completed;
+            if (res.unit_operation_stages_pending.length > 0)
+              biography = [...biography, ...res.unit_operation_stages_pending];
             let inProgressFlag = false;
             // If this is not new unit -> set inProgressFlag to true
-            if (res.unit_biography_completed.length > 0 || this.props.compositionOngoing) inProgressFlag = true;
+            if (res.unit_operation_stages_completed > 0 || this.props.compositionOngoing) inProgressFlag = true;
             this.props.doGetSchema(
               res.schema_id,
               (innerRes) => {
+                console.log(innerRes, ' -> inner res')
                 if (innerRes.status_code === 200) {
                   let newBiography = [];
                   try {
                     biography.map((item) => {
                       newBiography = [
                         ...newBiography,
-                        innerRes.production_schema.production_stages.filter(
-                          (v) => v.stage_id === item.stage_schema_entry_id
+                        innerRes.production_schema.schema_stages.filter(
+                          (v) => v.name === item.stage_name
                         )[0],
                       ];
                     });
@@ -176,11 +178,11 @@ class Composition extends React.Component {
 
                   let newCompleted = []
                   try {
-                    res.unit_biography_completed.map((item) => {
+                    res.unit_operation_stages_completed.map((item) => {
                       newCompleted = [
                         ...newCompleted,
-                        innerRes.production_schema.production_stages.filter(
-                          (v) => v.stage_id === item.stage_schema_entry_id
+                        innerRes.production_schema.schema_stages.filter(
+                          (v) => v.name === item.stage_name
                         )[0],
                       ];
                     })
@@ -188,15 +190,14 @@ class Composition extends React.Component {
                     throw new Error(e);
                   }
                   newCompleted = [...new Set(newCompleted)]
-                  // console.log(newCompleted)
 
                   let newPending = []
                   try {
-                    res.unit_biography_pending.map((item) => {
+                    res.unit_operation_stages_pending.map((item) => {
                       newPending = [
                         ...newPending,
-                        innerRes.production_schema.production_stages.filter(
-                          (v) => v.stage_id === item.stage_schema_entry_id
+                        innerRes.production_schema.schema_stages.filter(
+                          (v) => v.name === item.stage_name
                         )[0],
                       ];
                     })
@@ -204,36 +205,71 @@ class Composition extends React.Component {
                     throw new Error(e);
                   }
                   newPending = [...new Set(newPending)]
+                  this.setState({
+                    pendingStages: newPending.length
+                  });
                   
                   // If this is after pause or recovery
-                  if (inProgressFlag) {
+                  // if (inProgressFlag) {
+                  //   // console.log("detected in progress");
+                  //   if (this.props.compositionOngoing) {
+                  //     if (newCompleted.length === 0) {
+                  //       this.setState({ activeStep: 0 });
+                  //       setTimeout(() => {
+                  //         this.stopwatches[0]?.start();
+                  //       }, 300);
+                  //     } else if (newPending.length > 0) {
+                  //       this.setState({
+                  //         activeStep: newCompleted.length,
+                  //       });
+                  //       setTimeout(() => {
+                  //         this.stopwatches[
+                  //           newCompleted.length
+                  //         ]?.start();
+                  //       }, 300);
+                  //     }
+                  //   } else {
+                  //     if (newPending.length > 0) {
+                  //       this.setState({
+                  //         afterPauseStep: newCompleted.length,
+                  //         afterPauseStepName:
+                  //           newPending[0].stage_name,
+                  //       });
+                  //     } else {
+                  //       this.setState({
+                  //         activeStep: newCompleted.length,
+                  //       });
+                  //     }
+                  //   }
+                  // }
+                   if (inProgressFlag) {
                     // console.log("detected in progress");
                     if (this.props.compositionOngoing) {
-                      if (newCompleted.length === 0) {
+                      if (this.state.completedStages.length === 0) {
                         this.setState({ activeStep: 0 });
                         setTimeout(() => {
-                          // this.stopwatches[0]?.start();
+                          this.stopwatches[0]?.start();
                         }, 300);
-                      } else if (newPending.length > 0) {
+                      } else if (this.state.pendingStages.length > 0) {
                         this.setState({
-                          activeStep: newCompleted.length,
+                          activeStep: this.state.completedStages.length,
                         });
-                        // setTimeout(() => {
-                        //   this.stopwatches[
-                        //     newCompleted.length
-                        //   ]?.start();
-                        // }, 300);
+                        setTimeout(() => {
+                          this.stopwatches[
+                            this.state.completedStages.length
+                          ]?.start();
+                        }, 300);
                       }
                     } else {
-                      if (newPending.length > 0) {
+                      if (this.state.pendingStages.length > 0) {
                         this.setState({
-                          afterPauseStep: newCompleted.length,
+                          afterPauseStep: this.state.completedStages.length,
                           afterPauseStepName:
                             newPending[0].stage_name,
                         });
                       } else {
                         this.setState({
-                          activeStep: newCompleted.length,
+                          activeStep: this.state.completedStages.length,
                         });
                       }
                     }
@@ -262,15 +298,17 @@ class Composition extends React.Component {
   // Start record for the current step
   handleStageRecordStart(loadingNumber = 1) {
     return new Promise((resolve, reject) => {
+      this.toggleButtonLoading(loadingNumber);
+      setTimeout(() => {
+        this.stopwatches[this.state.activeStep]?.start();
+      }, 300);
       this.props.startStepRecord(
         {},
         (res) => {
           if (res.status_code === 200) {
             this.toggleButtonLoading(loadingNumber, false);
             resolve("OK");
-            setTimeout(() => {
-              // this.stopwatches[this.state.activeStep]?.start();
-            }, 300);
+  
             return true;
           } else {
             this.props.enqueueSnackbar(
@@ -287,11 +325,17 @@ class Composition extends React.Component {
   }
 
   // Stop record for the current step
-  handleStageRecordStop(loadBlock = 1, isPause = false) {
+  handleStageRecordStop(loadBlock = 1, isPause = false, toTheNexStage) {
     return new Promise((resolve, reject) => {
       this.toggleButtonLoading(loadBlock);
       this.props.stopStepRecord({}, isPause, (res) => {
         if (res.status_code === 200) {
+          if(toTheNexStage) {
+            this.setState((state) => {
+              return { completedStages: state.completedStages.push(res.detail), pendingStages: state.pendingStages - 1 }
+            });
+
+          }
           resolve("OK");
           return true;
         } else {
@@ -310,22 +354,22 @@ class Composition extends React.Component {
   // Add missing details
   async handleMissingDetails(additionalInfo, successChecker, errorChecker, loadBlock = 1, isPause = false) {
     await this.props.addAdditionalInfo(additionalInfo, successChecker, errorChecker, isPause, (res) => {
-      console.log(res)
-      console.log(additionalInfo)
+      // console.log(res)
+      // console.log(additionalInfo)
     });
   }
 
 
   // Stop current record, start next and move step
   handleNextCompositionStep(nextTitle, nextStepID) {
-    this.handleStageRecordStop()
+    this.setState((state) => {
+      return { activeStep: state.activeStep + 1 }
+    });
+    this.handleStageRecordStop(1, false, true)
       .then(() => this.handleStageRecordStart())
-      .then(() => {
-        this.setState({ activeStep: this.state.activeStep + 1 });
-        document.getElementById(nextStepID).scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
+      document.getElementById(nextStepID).scrollIntoView({
+        behavior: "smooth",
+        block: "center",
       });
   }
 
@@ -413,7 +457,8 @@ class Composition extends React.Component {
     this.handleStageRecordStart(
       this.props.steps[this.state.activeStep].name,
       2
-    ).then(() => this.setState({ onPause: false }));
+    )
+    this.setState({ onPause: false })
   }
 
   cancelComposition() {
@@ -448,14 +493,16 @@ class Composition extends React.Component {
     return new Date(seconds * 1000).toISOString().substr(11, 8);
   };
 
-  startComposition = () => {
+  startComposition = async () => {
     this.handleStageRecordStart(this.props.steps[0]?.name).then(
       (res) => {
-        this.setState({ activeStep: this.state.activeStep + 1 });
-        document.getElementById("step_0").scrollIntoView({
-          behavior: "smooth",
-          block: "center",
+        this.setState((state) => {
+          return { activeStep: state.activeStep + 1 }
         });
+        // document.getElementById("step_0").scrollIntoView({
+        //   behavior: "smooth",
+        //   block: "center",
+        // });
       }
     )
   };

@@ -12,6 +12,7 @@ import {
   doFetchComposition,
   doRaiseNotification,
   doGetSchemasNames,
+  authorize 
 } from "@reducers/stagesActions";
 import GatherComponents from "@components/GatherComponents/GatherComponents";
 import RevisionsTracker from "@components/RevisionsTracker/RevisionsTracker";
@@ -39,6 +40,7 @@ export default withSnackbar(
             doGetSchemasNames(dispatch, successChecker, errorChecker),
         doFetchComposition: (composition) =>
           doFetchComposition(dispatch, composition),
+        authorizeEmployee: () => authorize(dispatch)
         
       })
     )(
@@ -86,33 +88,35 @@ export default withSnackbar(
 
             this.props.doFetchComposition(res);
             let location = this.props.location.split("/")[1];
-            // switch (res.state) {
-            //   case "ProductionStageOngoing":
-            //     // console.log("PRODUCTION__ONGOING")
-            //     if (location !== "composition") this.props.goToComposition();
-            //     break;
-            //   case "GatherComponents":
-            //     // console.log("GATHER__COMPONENTS")
-            //     if (location !== "gatherComponents")
-            //       this.props.goToGatheringComponents();
-            //     break;
-            //   case "AwaitLogin":
-            //     console.log("AWAIT__LOGIN")
-            //     break;
-            //   case "AuthorizedIdling":
-            //     if (location !== "menu") {
-            //       this.props.goToMenu();
-            //       // console.log("==ROUTER== redirect to menu");
-            //     }
-            //     console.log("AUTHORIZED__IDLING")
-            //     break;
-            //   case "UnitAssignedIdling":
-            //     // console.log('UNIT__ASSIGNED__IDLING')
-            //     if (location !== "composition") this.props.goToComposition();
-            //     break;
-            //   default:
-            //     break;
-            // }
+            switch (res.state) {
+              case "ProductionStageOngoing":
+                // console.log("PRODUCTION__ONGOING")
+                if (location !== "composition") this.props.goToComposition();
+                break;
+              case "GatherComponents":
+                // console.log("GATHER__COMPONENTS")
+                if (location !== "gatherComponents")
+                  this.props.goToGatheringComponents();
+                break;
+              case "AwaitLogin":
+                // console.log("AWAIT__LOGIN")
+                break;
+              case "AuthorizedIdling":
+                if (location !== "menu") {
+                  this.props.goToMenu();
+                  this.props.authorizeEmployee();
+                  window.sessionStorage.setItem("isAuthorized", true);
+                  // console.log("==ROUTER== redirect to menu");
+                }
+                // console.log("AUTHORIZED__IDLING")
+                break;
+              case "UnitAssignedIdling":
+                // console.log('UNIT__ASSIGNED__IDLING')
+                if (location !== "composition") this.props.goToComposition();
+                break;
+              default:
+                break;
+            }
           };
           eventSource.onerror = (e) => {
             this.setState({ SSEErrorFlag: true });

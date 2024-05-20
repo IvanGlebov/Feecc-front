@@ -119,15 +119,15 @@ export default withSnackbar(
                       reject(res);
                     }
                     // Check if this scheme has no stages at all
-                    if (schema.production_stages === null) {
+                    if (schema.schema_stages === null) {
                       this.props.enqueueSnackbar(
                         "Ошибка. Данная схема не содержит ни одного этапа. Свяжитесь с администратором для решения данной проблемы.",
                         { variant: "error" }
                       );
                       reject(res);
                     }
-                    console.log(schema.production_stages)
-                    this.props.setSteps(schema.production_stages);
+                    console.log(schema.schema_stages)
+                    this.props.setSteps(schema.schema_stages);
                     resolve({...res, schemaID: item.schema_id});
                   })
               )

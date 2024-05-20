@@ -99,8 +99,8 @@ export default withTranslation()(connect(
         case 'ProductionStageOngoing':
           if (this.stopwatchRef !== undefined) {
             
-            // this.props.updateCompositionTimer(true);
-            // setTimeout(() => this.stopwatchRef?.current?.start())
+            this.props.updateCompositionTimer(true);
+            setTimeout(() => this.stopwatchRef?.current?.start())
             if(!this.props.compositionTimer) {
               this.props.updateCompositionTimer(true);
               setTimeout(() => this.stopwatchRef?.current?.start())

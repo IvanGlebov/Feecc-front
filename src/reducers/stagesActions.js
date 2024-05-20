@@ -180,8 +180,10 @@ export const doStopStepRecord = (
       method: "post",
       url: `${process.env.APPLICATION_SOCKET}/workbench/end-operation`,
       data: {
-        workbench_no: store.getState().stages.get("workbench_no"),
-        additional_info: additionalInfo,
+        stage_data: {
+          workbench_no: store.getState().stages.get("workbench_no"),
+          additional_info: additionalInfo,
+        },
         premature_ending: prematureEnding,
       },
     },
@@ -238,7 +240,7 @@ export const doResetNotifications = (dispatch) => {
 export const doSetSteps = (dispatch, steps) => {
   dispatch({
     type: types.STAGES__SET_STEPS,
-    production_schema: { production_stages: steps },
+    production_schema: { schema_stages: steps },
   });
 };
 // Reworked

@@ -68,6 +68,7 @@ export const axiosWrapper = (dispatch, event, opts, successChecker) => {
       return res
     })
     .catch(error => {
+      console.log(error)
       dispatch(reportAxiosError(error))
     })
 }

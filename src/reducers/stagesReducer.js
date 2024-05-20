@@ -40,7 +40,7 @@ export const stagesReducer = (state={}, action) => {
             return state
               .set('composition', fromJS(action))
               .setIn(['unit', 'unit_internal_id'], action.unit_internal_id !== '' && action.unit_internal_id !== null ? action.unit_internal_id : (state.getIn(['unit', 'unit_internal_id']) !== '' ? state.getIn(['unit', 'unit_internal_id']) : ''))
-              .setIn(['unit', 'unit_biography'], action.unit_biography !== null ? fromJS(action.unit_biography) : '')
+              // .setIn(['unit', 'unit_status'], action.unit_status !== null ? fromJS(action.unit_status) : '')
               // .deleteIn(['composition', 'type'])
               // .set('composition', fromJS(action))
         case types.STAGES__CREATE_NEW_UNIT:
@@ -66,7 +66,7 @@ export const stagesReducer = (state={}, action) => {
               .setIn(['unit', 'unit_internal_id'], action.unitID)
         case types.STAGES__SET_STEPS:
             return state
-              .set('steps', fromJS(action.production_schema?.production_stages))
+              .set('steps', fromJS(action.production_schema?.schema_stages))
         case types.STAGES__SET_WORKBENCH_NO:
             return state
               .set('workbench_no', action.workbench_no)
