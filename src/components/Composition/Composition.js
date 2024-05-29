@@ -81,8 +81,6 @@ class Composition extends React.Component {
     onPause: false,
     afterPause: false,
     helperLoading: false,
-    completedStages: [],
-    pendingStages: [],
   };
 
   closeButtonAction = (key) => (
@@ -146,6 +144,7 @@ class Composition extends React.Component {
         this.props.compositionID,
         (res) => {
           if (res && res.status_code == 200) {
+            console.log(res, ' -> res')
             // console.log("Unit details received")
             let biography = [];
             if (res.unit_operation_stages_completed.length > 0)
@@ -208,68 +207,37 @@ class Composition extends React.Component {
                   this.setState({
                     pendingStages: newPending.length
                   });
+
                   
                   // If this is after pause or recovery
-                  // if (inProgressFlag) {
-                  //   // console.log("detected in progress");
-                  //   if (this.props.compositionOngoing) {
-                  //     if (newCompleted.length === 0) {
-                  //       this.setState({ activeStep: 0 });
-                  //       setTimeout(() => {
-                  //         this.stopwatches[0]?.start();
-                  //       }, 300);
-                  //     } else if (newPending.length > 0) {
-                  //       this.setState({
-                  //         activeStep: newCompleted.length,
-                  //       });
-                  //       setTimeout(() => {
-                  //         this.stopwatches[
-                  //           newCompleted.length
-                  //         ]?.start();
-                  //       }, 300);
-                  //     }
-                  //   } else {
-                  //     if (newPending.length > 0) {
-                  //       this.setState({
-                  //         afterPauseStep: newCompleted.length,
-                  //         afterPauseStepName:
-                  //           newPending[0].stage_name,
-                  //       });
-                  //     } else {
-                  //       this.setState({
-                  //         activeStep: newCompleted.length,
-                  //       });
-                  //     }
-                  //   }
-                  // }
-                   if (inProgressFlag) {
+                  if (inProgressFlag) {
                     // console.log("detected in progress");
                     if (this.props.compositionOngoing) {
-                      if (this.state.completedStages.length === 0) {
+                      if (newCompleted.length === 0) {
                         this.setState({ activeStep: 0 });
                         setTimeout(() => {
                           this.stopwatches[0]?.start();
                         }, 300);
-                      } else if (this.state.pendingStages.length > 0) {
+                      } else if (newPending.length > 0) {
                         this.setState({
-                          activeStep: this.state.completedStages.length,
+                          activeStep: newCompleted.length,
                         });
                         setTimeout(() => {
                           this.stopwatches[
-                            this.state.completedStages.length
+                            newCompleted.length
                           ]?.start();
                         }, 300);
                       }
                     } else {
-                      if (this.state.pendingStages.length > 0) {
+                      if (newPending.length > 0) {
                         this.setState({
-                          afterPauseStep: this.state.completedStages.length,
+                          afterPauseStep: newCompleted.length,
                           afterPauseStepName:
                             newPending[0].stage_name,
                         });
                       } else {
                         this.setState({
-                          activeStep: this.state.completedStages.length,
+                          activeStep: newCompleted.length,
                         });
                       }
                     }
@@ -330,12 +298,6 @@ class Composition extends React.Component {
       this.toggleButtonLoading(loadBlock);
       this.props.stopStepRecord({}, isPause, (res) => {
         if (res.status_code === 200) {
-          if(toTheNexStage) {
-            this.setState((state) => {
-              return { completedStages: state.completedStages.push(res.detail), pendingStages: state.pendingStages - 1 }
-            });
-
-          }
           resolve("OK");
           return true;
         } else {
