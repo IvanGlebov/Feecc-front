@@ -106,6 +106,7 @@ class Composition extends React.Component {
 
     if(prevProps.state !== this.props.state) {
       // If state changed - fetch composition
+      // console.log(this.props.state, ' => state')
       this.fetchComposition();
     }
 
@@ -153,7 +154,7 @@ class Composition extends React.Component {
               biography = [...biography, ...res.unit_operation_stages_pending];
             let inProgressFlag = false;
             // If this is not new unit -> set inProgressFlag to true
-            if (res.unit_operation_stages_completed > 0 || this.props.compositionOngoing) inProgressFlag = true;
+            if (res.unit_operation_stages_completed.length > 0 || this.props.compositionOngoing) inProgressFlag = true;
             this.props.doGetSchema(
               res.schema_id,
               (innerRes) => {
@@ -208,7 +209,6 @@ class Composition extends React.Component {
                     pendingStages: newPending.length
                   });
 
-                  
                   // If this is after pause or recovery
                   if (inProgressFlag) {
                     // console.log("detected in progress");
@@ -445,6 +445,7 @@ class Composition extends React.Component {
   }
 
   proceedComposition() {
+    this.toggleButtonLoading(1);
     this.handleStageRecordStart().then(() => {
       this.setState({ activeStep: this.state.afterPauseStep });
     });
