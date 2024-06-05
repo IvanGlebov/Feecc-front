@@ -80,7 +80,7 @@ class Composition extends React.Component {
     loading: [],
     onPause: false,
     afterPause: false,
-    helperLoading: false
+    helperLoading: false,
   };
 
   closeButtonAction = (key) => (
@@ -106,6 +106,7 @@ class Composition extends React.Component {
 
     if(prevProps.state !== this.props.state) {
       // If state changed - fetch composition
+      // console.log(this.props.state, ' => state')
       this.fetchComposition();
     }
 
@@ -135,7 +136,6 @@ class Composition extends React.Component {
   }
 
   fetchComposition() {
-    const { t } = this.props;
     if (
       this.props.compositionID !== "" &&
       this.props.compositionID !== undefined &&
@@ -144,28 +144,29 @@ class Composition extends React.Component {
       this.props.doGetUnitDetails(
         this.props.compositionID,
         (res) => {
-          if (res.status_code === 200) {
+          if (res && res.status_code == 200) {
+            console.log(res, ' -> res')
             // console.log("Unit details received")
             let biography = [];
-            if (res.unit_biography_completed.length > 0)
-              biography = res.unit_biography_completed;
-            if (res.unit_biography_pending.length > 0)
-              biography = [...biography, ...res.unit_biography_pending];
-
+            if (res.unit_operation_stages_completed.length > 0)
+              biography = res.unit_operation_stages_completed;
+            if (res.unit_operation_stages_pending.length > 0)
+              biography = [...biography, ...res.unit_operation_stages_pending];
             let inProgressFlag = false;
             // If this is not new unit -> set inProgressFlag to true
-            if (res.unit_biography_completed.length > 0 || this.props.compositionOngoing) inProgressFlag = true;
+            if (res.unit_operation_stages_completed.length > 0 || this.props.compositionOngoing) inProgressFlag = true;
             this.props.doGetSchema(
               res.schema_id,
               (innerRes) => {
+                console.log(innerRes, ' -> inner res')
                 if (innerRes.status_code === 200) {
                   let newBiography = [];
                   try {
                     biography.map((item) => {
                       newBiography = [
                         ...newBiography,
-                        innerRes.production_schema.production_stages.filter(
-                          (v) => v.stage_id === item.stage_schema_entry_id
+                        innerRes.production_schema.schema_stages.filter(
+                          (v) => v.name === item.stage_name
                         )[0],
                       ];
                     });
@@ -177,11 +178,11 @@ class Composition extends React.Component {
 
                   let newCompleted = []
                   try {
-                    res.unit_biography_completed.map((item) => {
+                    res.unit_operation_stages_completed.map((item) => {
                       newCompleted = [
                         ...newCompleted,
-                        innerRes.production_schema.production_stages.filter(
-                          (v) => v.stage_id === item.stage_schema_entry_id
+                        innerRes.production_schema.schema_stages.filter(
+                          (v) => v.name === item.stage_name
                         )[0],
                       ];
                     })
@@ -189,15 +190,14 @@ class Composition extends React.Component {
                     throw new Error(e);
                   }
                   newCompleted = [...new Set(newCompleted)]
-                  // console.log(newCompleted)
 
                   let newPending = []
                   try {
-                    res.unit_biography_pending.map((item) => {
+                    res.unit_operation_stages_pending.map((item) => {
                       newPending = [
                         ...newPending,
-                        innerRes.production_schema.production_stages.filter(
-                          (v) => v.stage_id === item.stage_schema_entry_id
+                        innerRes.production_schema.schema_stages.filter(
+                          (v) => v.name === item.stage_name
                         )[0],
                       ];
                     })
@@ -205,7 +205,10 @@ class Composition extends React.Component {
                     throw new Error(e);
                   }
                   newPending = [...new Set(newPending)]
-                  
+                  this.setState({
+                    pendingStages: newPending.length
+                  });
+
                   // If this is after pause or recovery
                   if (inProgressFlag) {
                     // console.log("detected in progress");
@@ -213,17 +216,17 @@ class Composition extends React.Component {
                       if (newCompleted.length === 0) {
                         this.setState({ activeStep: 0 });
                         setTimeout(() => {
-                          // this.stopwatches[0]?.start();
+                          this.stopwatches[0]?.start();
                         }, 300);
                       } else if (newPending.length > 0) {
                         this.setState({
                           activeStep: newCompleted.length,
                         });
-                        // setTimeout(() => {
-                        //   this.stopwatches[
-                        //     newCompleted.length
-                        //   ]?.start();
-                        // }, 300);
+                        setTimeout(() => {
+                          this.stopwatches[
+                            newCompleted.length
+                          ]?.start();
+                        }, 300);
                       }
                     } else {
                       if (newPending.length > 0) {
@@ -247,7 +250,7 @@ class Composition extends React.Component {
             return true;
           } else {
             this.props.enqueueSnackbar(
-              `${t('FailedToRetrieveProductInformation')}. ${t('TryLater')}. ${t('IfTheErrorPersists')}, ${t('ContactYourSystemAdministratorToResolveTheProblem')}. ${t('ErrorCode')}: ${res.status_code}`,
+              `Не удалось получить информацию об изделии. Попробуйте позже. Если ошибка повторится, то свяжитесь с системным администратором для устранения проблемы. Код ошибки: ${res.status_code}`,
               { variant: "error" }
             );
             // console.log("FETCH ERROR");
@@ -262,21 +265,22 @@ class Composition extends React.Component {
 
   // Start record for the current step
   handleStageRecordStart(loadingNumber = 1) {
-    const { t } = this.props;
     return new Promise((resolve, reject) => {
+      this.toggleButtonLoading(loadingNumber);
+      setTimeout(() => {
+        this.stopwatches[this.state.activeStep]?.start();
+      }, 300);
       this.props.startStepRecord(
         {},
         (res) => {
           if (res.status_code === 200) {
             this.toggleButtonLoading(loadingNumber, false);
             resolve("OK");
-            setTimeout(() => {
-              // this.stopwatches[this.state.activeStep]?.start();
-            }, 300);
+  
             return true;
           } else {
             this.props.enqueueSnackbar(
-              `${t('FailedToStartRecordingTheStage')}. ${t('PleaseTryAgainLater')}. ${t('IfThisErrorOccursMultipleTimesContactYourSystemAdministrator')}. ${t('ErrorCode')}: ${res.status_code}`,
+              `Не удалось начать запись этапа. Попробуйте повторить позже. При многократном повторении данной ошибки обратитесь к системному администратору. Код ошибки: ${res.status_code}`,
               { variant: "error" }
             );
             reject("Error during attempt to start recording");
@@ -289,8 +293,7 @@ class Composition extends React.Component {
   }
 
   // Stop record for the current step
-  handleStageRecordStop(loadBlock = 1, isPause = false) {
-    const { t } = this.props;
+  handleStageRecordStop(loadBlock = 1, isPause = false, toTheNexStage) {
     return new Promise((resolve, reject) => {
       this.toggleButtonLoading(loadBlock);
       this.props.stopStepRecord({}, isPause, (res) => {
@@ -299,7 +302,7 @@ class Composition extends React.Component {
           return true;
         } else {
           this.props.enqueueSnackbar(
-            `${t('FailedToCompleteStageRecording')}. ${t('PleaseTryAgainLater')}. ${t('IfThisErrorOccursMultipleTimesContactYourSystemAdministrator')}. ${t('ErrorCode')} ${res.status_code}`,
+            `Не удалось завершить запись этапа. Попробуйте повторить позже. При многократном повторении данной ошибки обратитесь к системному администратору. Код ошибки ${res.status_code}`,
             { variant: "error" }
           );
           this.toggleButtonLoading(loadBlock);
@@ -313,28 +316,27 @@ class Composition extends React.Component {
   // Add missing details
   async handleMissingDetails(additionalInfo, successChecker, errorChecker, loadBlock = 1, isPause = false) {
     await this.props.addAdditionalInfo(additionalInfo, successChecker, errorChecker, isPause, (res) => {
-      console.log(res)
-      console.log(additionalInfo)
+      // console.log(res)
+      // console.log(additionalInfo)
     });
   }
 
 
   // Stop current record, start next and move step
   handleNextCompositionStep(nextTitle, nextStepID) {
-    this.handleStageRecordStop()
+    this.setState((state) => {
+      return { activeStep: state.activeStep + 1 }
+    });
+    this.handleStageRecordStop(1, false, true)
       .then(() => this.handleStageRecordStart())
-      .then(() => {
-        this.setState({ activeStep: this.state.activeStep + 1 });
-        document.getElementById(nextStepID).scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
+      document.getElementById(nextStepID).scrollIntoView({
+        behavior: "smooth",
+        block: "center",
       });
   }
 
   // Upload finished composition
   handleCompositionUpload() {
-    const { t } = this.props;
     this.toggleButtonLoading(2);
     this.props
       .newUploadComposition()
@@ -353,7 +355,7 @@ class Composition extends React.Component {
       .then((unitID) => {
         this.toggleButtonLoading(2);
         this.props.enqueueSnackbar(
-          `${t('Passport')} ${unitID} ${t('SuccessfullyUploadedToIPFSNetwork')}`,
+          `Паспорт ${unitID} успешно загружен в сеть IPFS`,
           {
             variant: "success",
           }
@@ -372,10 +374,10 @@ class Composition extends React.Component {
                   unitID={this.props.compositionID}
                 />
               ),
-            actionName: `${t('ContinueWithoutSaving')}`,
+            actionName: "Продолжить без сохранения",
           };
           const proceedKey = this.props.enqueueSnackbar(
-            `${t('ErrorLoadingAssembly')}. ${t('ResponseCode')} ${res?.response?.status}`,
+            `Ошибка загрузки сборки. Код ответа ${res?.response?.status}`,
             {
               variant: "error",
               action: RepeatCloseActionButton.bind(bindObject),
@@ -390,7 +392,6 @@ class Composition extends React.Component {
 
   // Set this composition on pause and go to unit create selection
   setOnPause() {
-    const { t } = this.props;
     this.handleStageRecordStop(3).then(() =>
       this.props.dropUnit((res) => {
         if (res.status_code === 200) {
@@ -398,7 +399,7 @@ class Composition extends React.Component {
           return true;
         } else {
           this.props.enqueueSnackbar(
-            `${t('FailedToRemoveAssemblyFromTable')}. ${t('PleaseTryAgainLater')}. ${t('IfThisErrorOccursMultipleTimesContactYourSystemAdministrator')}. ${t('ErrorCode')} ${res.status_code}`,
+            `Не удалось убрать сборку со стола. Попробуйте позже. Если ошибка повторится, то свяжитесь с системным администратором для устранения проблемы. Код ошибки ${res.status_code}`,
             { variant: "error" }
           );
           return false;
@@ -418,11 +419,11 @@ class Composition extends React.Component {
     this.handleStageRecordStart(
       this.props.steps[this.state.activeStep].name,
       2
-    ).then(() => this.setState({ onPause: false }));
+    )
+    this.setState({ onPause: false })
   }
 
   cancelComposition() {
-    const { t } = this.props;
     this.toggleButtonLoading(2);
     return new Promise((resolve) => {
       this.props.dropUnit((res) => {
@@ -434,7 +435,7 @@ class Composition extends React.Component {
           return true;
         } else {
           this.props.enqueueSnackbar(
-            `${t('FailedToRemoveAssemblyFromTable')}. ${t('PleaseTryAgainLater')}. ${t('IfThisErrorOccursMultipleTimesContactYourSystemAdministrator')}. ${t('ErrorCode')} ${res.status_code}`,
+            `Не удалось убрать сборку со стола. Попробуйте позже. Если ошибка повторится, то свяжитесь с системным администратором для устранения проблемы. Код ошибки ${res.status_code}`,
             { variant: "error" }
           );
           return false;
@@ -444,6 +445,7 @@ class Composition extends React.Component {
   }
 
   proceedComposition() {
+    this.toggleButtonLoading(1);
     this.handleStageRecordStart().then(() => {
       this.setState({ activeStep: this.state.afterPauseStep });
     });
@@ -454,14 +456,16 @@ class Composition extends React.Component {
     return new Date(seconds * 1000).toISOString().substr(11, 8);
   };
 
-  startComposition = () => {
+  startComposition = async () => {
     this.handleStageRecordStart(this.props.steps[0]?.name).then(
       (res) => {
-        this.setState({ activeStep: this.state.activeStep + 1 });
-        document.getElementById("step_0").scrollIntoView({
-          behavior: "smooth",
-          block: "center",
+        this.setState((state) => {
+          return { activeStep: state.activeStep + 1 }
         });
+        // document.getElementById("step_0").scrollIntoView({
+        //   behavior: "smooth",
+        //   block: "center",
+        // });
       }
     )
   };
@@ -681,7 +685,7 @@ class Composition extends React.Component {
                           }
                         }}
                       >
-                        {onPause ? `${t("Unpause")}` : t("SetOnPause")}
+                        {onPause ? "Снять с паузы" : t("SetOnPause")}
                       </LoadingButton>
                     </div>
                     {activeStep !== this.props.steps?.length - 1 && (
@@ -757,7 +761,7 @@ class Composition extends React.Component {
                   )
                 }
               >
-                {t('ContinueWithoutSaving')}
+                Продолжить без сохранения
               </LoadingButton>
             </div>
           </div>

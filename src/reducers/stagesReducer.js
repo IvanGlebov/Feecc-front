@@ -4,7 +4,7 @@ import { types } from './common'
 
 export const stagesInitialState = fromJS({
     steps: [
-     {'name': 'title1', 'descriprtion': 'context1', 'duration_seconds': 300 },
+     {'name': 'title1', 'description': 'context1', 'duration_seconds': 300 },
      {'name': 'title2', 'description': 'context2', 'duration_seconds': 250 }
     ],
     productionSchemas: [{'schema_id':'test_id_123', 'schema_name': 'simple schema name'}],
@@ -16,7 +16,9 @@ export const stagesInitialState = fromJS({
     workbench_no: 0,
     betweenEndAndStartFlag: false,
     compositionTimer: false,
-    notifications: {}
+    notifications: {},
+    isAuthorizing: false,
+    employee_logged_in: false
 })
 
 export const stagesReducer = (state={}, action) => {
@@ -38,7 +40,7 @@ export const stagesReducer = (state={}, action) => {
             return state
               .set('composition', fromJS(action))
               .setIn(['unit', 'unit_internal_id'], action.unit_internal_id !== '' && action.unit_internal_id !== null ? action.unit_internal_id : (state.getIn(['unit', 'unit_internal_id']) !== '' ? state.getIn(['unit', 'unit_internal_id']) : ''))
-              .setIn(['unit', 'unit_biography'], action.unit_biography !== null ? fromJS(action.unit_biography) : '')
+              // .setIn(['unit', 'unit_status'], action.unit_status !== null ? fromJS(action.unit_status) : '')
               // .deleteIn(['composition', 'type'])
               // .set('composition', fromJS(action))
         case types.STAGES__CREATE_NEW_UNIT:
@@ -64,7 +66,7 @@ export const stagesReducer = (state={}, action) => {
               .setIn(['unit', 'unit_internal_id'], action.unitID)
         case types.STAGES__SET_STEPS:
             return state
-              .set('steps', fromJS(action.production_schema?.production_stages))
+              .set('steps', fromJS(action.production_schema?.schema_stages))
         case types.STAGES__SET_WORKBENCH_NO:
             return state
               .set('workbench_no', action.workbench_no)
@@ -77,6 +79,17 @@ export const stagesReducer = (state={}, action) => {
         case types.STAGES__UPDATE_COMPOSITION_TIMER: 
             return state
               .set('compositionTimer', action.value)
+        case types.STAGES__TRY_TO_AUTHORIZE_EMPLOYEE: 
+          return state
+            .set('isAuthorizing', true)
+        case types.STAGES__AUTHORIZE_EMPLOYEE: 
+            return state
+              .set('employee_logged_in', true)
+              .set('isAuthorizing', false)
+        case types.STAGES__UNAUTHORIZE_EMPLOYEE: 
+            return state
+              .set('employee_logged_in', false)
+              .set('isAuthorizing', false)
         default:
             return state
     }
