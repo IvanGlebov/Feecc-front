@@ -13,7 +13,7 @@ const ReloadWarning = (props) => {
     <div className={styles.contentWrapper}>
       <div className={styles.contentHeader}>{t("ImportantMessage")}</div>
       <div className={styles.contentText}>
-        {t('YouAreAboutToReloadThePage')}. <br/>{t('This')} <strong>{t('May')}, </strong>{t('But')} <strong>{t("shouldn't")} </strong>{t('LeadToErrorsAtThisStage')}. {t('IfItIsPossibleNotToReloadThePage')}, {t('ThenYouShouldUseIt')}.
+        Вы собираетесь перезагрузить страницу. <br/>Это <strong>может</strong>, но <strong>не должно</strong> привести к ошибкам на этом этапе. Если есть возможность не перезагружать страницу, то стоит воспользоваться ею.
       </div>
       <div className={styles.buttonsWrapper}>
         <LoadingButton
@@ -24,7 +24,7 @@ const ReloadWarning = (props) => {
           variant="outlined"
           onClick={props.reloadAction}
         >
-          {t('Reboot')}
+          Перезагрузить
         </LoadingButton>
         <LoadingButton
           size="large"
@@ -34,7 +34,7 @@ const ReloadWarning = (props) => {
           variant="contained"
           onClick={onClose}
         >
-          {t("СloseButton")}
+          Закрыть
         </LoadingButton>
       </div>
     </div>

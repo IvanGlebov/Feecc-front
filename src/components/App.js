@@ -12,6 +12,7 @@ import {
   doFetchComposition,
   doRaiseNotification,
   doGetSchemasNames,
+  authorize 
 } from "@reducers/stagesActions";
 import GatherComponents from "@components/GatherComponents/GatherComponents";
 import RevisionsTracker from "@components/RevisionsTracker/RevisionsTracker";
@@ -27,6 +28,7 @@ export default withSnackbar(
     connect(
       (store) => ({
         location: store.router.location.pathname,
+        employee_logged_in: store.stages.get("employee_logged_in"),
       }),
       (dispatch) => ({
         raiseNotification: (notificationMessage) =>
@@ -38,6 +40,8 @@ export default withSnackbar(
             doGetSchemasNames(dispatch, successChecker, errorChecker),
         doFetchComposition: (composition) =>
           doFetchComposition(dispatch, composition),
+        authorizeEmployee: () => authorize(dispatch)
+        
       })
     )(
       class App extends Component {
@@ -73,7 +77,7 @@ export default withSnackbar(
             this.state.eventSource !== undefined
           ) {
             this.state.eventSource.close();
-            this.setState({ eventSrouce: null });
+            this.setState({ eventSource: null });
             clearTimeout(this.state.reconnectTimer);
           }
           const eventSource = new EventSource(
@@ -100,6 +104,8 @@ export default withSnackbar(
               case "AuthorizedIdling":
                 if (location !== "menu") {
                   this.props.goToMenu();
+                  this.props.authorizeEmployee();
+                  window.sessionStorage.setItem("isAuthorized", true);
                   // console.log("==ROUTER== redirect to menu");
                 }
                 // console.log("AUTHORIZED__IDLING")
@@ -113,16 +119,15 @@ export default withSnackbar(
             }
           };
           eventSource.onerror = (e) => {
-            const { t } = this.props;
             this.setState({ SSEErrorFlag: true });
             const errorEvent = this.props.enqueueSnackbar(
-              `${t("ConnectionToTheServerCouldNotBeEstablished")}. ${t("TryingToReconnectVia")} ${this.state.reconnectInterval} ${t("seconds")}`,
+              `Соединение с сервером не может быть установлено. Попытка повторного подключения через ${this.state.reconnectInterval} секунд`,
               {
                 variant: "error",
                 persist: true,
                 action: RepeatCloseActionButton.bind({
                   action: this.setupSSEConnection,
-                  actionName: `${t('Repeat')}`,
+                  actionName: "Повторить",
                 }),
                 preventDuplicate: true,
               }
@@ -134,12 +139,11 @@ export default withSnackbar(
           };
 
           eventSource.onopen = (e) => {
-            const { t } = this.props;
             this.props.closeSnackbar(this.state.errorEvent);
 
             if (this.state.SSEErrorFlag) {
               this.props.enqueueSnackbar(
-                `${t('TheConnectionToTheServerHasBeenRestored')}`,
+                "Соединение с сервером восстановлено",
                 {
                   variant: "success",
                   persist: false,
@@ -148,15 +152,12 @@ export default withSnackbar(
                 }
               );
             } else {
-              this.props.enqueueSnackbar(
-                `${t("ConnectionToServerEstablished")}`,
-                {
-                  variant: "success",
-                  persist: false,
-                  action: CloseActionButton,
-                  preventDuplicate: false,
-                }
-              );
+              this.props.enqueueSnackbar("Соединение с сервером установлено", {
+                variant: "success",
+                persist: false,
+                action: CloseActionButton,
+                preventDuplicate: false,
+              });
             }
           };
           this.setState({ eventSource });
@@ -216,7 +217,6 @@ export default withSnackbar(
         };
 
         componentDidMount() {
-          const { t } = this.props;
           this.setupSSEConnection();
           this.setupNotificationsSSEConnection();
 
@@ -225,10 +225,10 @@ export default withSnackbar(
             if (res.status_code === 200) {
               if (
                 res.available_schemas.length === 0 &&
-                this.props.authorized
+                this.props.employee_logged_in
               ) {
                 this.props.enqueueSnackbar(
-                  `${t('Attention')}! ${t('BuildsAvailableZero')}. ${t('ContactYourSystemAdministratorToAddTheNecessaryAssembliesToTheDatabase')}.`,
+                  "Внимание! Доступно 0 сборок. Свяжитесь с администратором системы для добавления необходимых сборок в базу.",
                   { variant: "warning" }
                 );
               }

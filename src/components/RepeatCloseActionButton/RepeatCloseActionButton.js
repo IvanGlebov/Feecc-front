@@ -1,11 +1,9 @@
 import React from "react";
 import styles from "./RepeatCloseActionButton.module.css";
 import { useSnackbar } from "notistack";
-import { useTranslation } from "react-i18next";
 
 function RepeatCloseActionButton(key) {
   const { closeSnackbar } = useSnackbar();
-  const { t } = useTranslation();
 
   return (
     <div className={styles.notificationButtons}>
@@ -21,7 +19,7 @@ function RepeatCloseActionButton(key) {
           closeSnackbar(key);
         }}
       >
-        {t("СloseButton")}
+        Закрыть
       </button>
     </div>
   );

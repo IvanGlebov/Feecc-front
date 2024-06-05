@@ -31,7 +31,7 @@ export default withSnackbar(
         (store) => ({
           unitID: store.stages.getIn(["unit", "unit_internal_id"]),
           schemas: store.stages.get("productionSchemas").toJS(),
-          authorized: store.stages.getIn(["composition", "employee_logged_in"]),
+          employee_logged_in: store.stages.get("employee_logged_in"),
         }),
         (dispatch) => ({
           raiseNotification: (notificationMessage) =>
@@ -57,7 +57,7 @@ export default withSnackbar(
       )(
         class Menu extends React.Component {
           static propTypes = {
-            authorized: PropTypes.bool,
+            employee_logged_in: PropTypes.bool,
             unitID: PropTypes.string,
             raiseNotification: PropTypes.func.isRequired,
             createUnit: PropTypes.func.isRequired,
@@ -79,14 +79,13 @@ export default withSnackbar(
 
 
             this.props.doGetSchemasNames((res) => {
-              const { t } = this.props;
               if (res.status_code === 200) {
                 if (
                   res.available_schemas.length === 0 &&
-                  this.props.authorized
+                  this.props.employee_logged_in
                 ) {
                   this.props.enqueueSnackbar(
-                    `${t('Attention')}! ${t('BuildsAvailableZero')}. ${t('ContactYourSystemAdministratorToAddTheNecessaryAssembliesToTheDatabase')}.`,
+                    "Внимание! Доступно 0 сборок. Свяжитесь с администратором системы для добавления необходимых сборок в базу.",
                     { variant: "warning" }
                   );
                 }
@@ -104,7 +103,6 @@ export default withSnackbar(
           }
 
           handleCreateUnit = (item, index) => {
-            const { t } = this.props;
             this.toggleButtonLoading(index);
             this.props
               .newDoGetSchema(item.schema_id)
@@ -115,20 +113,21 @@ export default withSnackbar(
                     // Check if the whole scheme is empty
                     if (schema === null) {
                       this.props.enqueueSnackbar(
-                        `${t('Error')}. ${t('ThisSchemeIsNotAvailable')}. ${t('ContactYourAdministratorToResolveThisIssue')}.`,
+                        "Ошибка. Данная схема отсутствует. Свяжитесь с администратором для решения данной проблемы.",
                         { variant: "error" }
                       );
                       reject(res);
                     }
                     // Check if this scheme has no stages at all
-                    if (schema.production_stages === null) {
+                    if (schema.schema_stages === null) {
                       this.props.enqueueSnackbar(
-                        `${t('Error')}. ${t('ThisSchemeDoesNotContainSingleStage')}. ${t('ContactYourAdministratorToResolveThisIssue')}.`,
+                        "Ошибка. Данная схема не содержит ни одного этапа. Свяжитесь с администратором для решения данной проблемы.",
                         { variant: "error" }
                       );
                       reject(res);
                     }
-                    this.props.setSteps(schema.production_stages);
+                    console.log(schema.schema_stages)
+                    this.props.setSteps(schema.schema_stages);
                     resolve({...res, schemaID: item.schema_id});
                   })
               )
